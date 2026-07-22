@@ -1,0 +1,16 @@
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Node (falls später Tooling dazukommt)
+node_modules/
+npm-debug.log*
+
+# temporär
+*.tmp
+.cache/

@@ -1,0 +1,121 @@
+:root {
+  --dark: #0E1A2B;
+  --dark2: #16233A;
+  --gold: #E9A93B;
+  --gold-light: #F5C560;
+  --orange: #E8722B;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: #060B14;
+  color: #F4E9D6;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Canvas skaliert auf die Fenstergröße, behält 16:9 */
+#game {
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  image-rendering: auto;
+  background: var(--dark);
+  display: block;
+  touch-action: none;
+}
+
+/* ---- Overlay / Menü ---- */
+.overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 40%, rgba(22,35,58,0.75), rgba(6,11,20,0.92));
+  backdrop-filter: blur(2px);
+  transition: opacity 0.35s ease;
+}
+.overlay.hidden { opacity: 0; pointer-events: none; }
+
+.menu-card {
+  text-align: center;
+  padding: 36px 40px;
+  border: 1px solid rgba(233,169,59,0.35);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(16,26,43,0.9), rgba(11,20,36,0.95));
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55), inset 0 0 40px rgba(47,211,224,0.05);
+  max-width: 90vw;
+}
+
+.logo {
+  font-size: clamp(38px, 8vw, 68px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--gold-light);
+  text-shadow: 0 2px 0 #9c6a17, 0 0 24px rgba(233,169,59,0.45);
+}
+.logo span { color: var(--orange); }
+.subtitle {
+  margin-top: 4px; margin-bottom: 26px;
+  letter-spacing: 4px; font-size: clamp(11px, 2vw, 14px);
+  color: #9db4d4;
+}
+
+.menu-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.btn {
+  width: 240px; max-width: 78vw;
+  padding: 13px 18px;
+  font-size: 16px; font-weight: 700;
+  color: #F4E9D6;
+  background: rgba(20,32,54,0.9);
+  border: 1.5px solid rgba(233,169,59,0.5);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+.btn.primary {
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: #23180a; border-color: var(--gold-light);
+}
+
+.options {
+  margin-top: 20px; padding: 14px; border-radius: 10px;
+  background: rgba(6,11,20,0.6); font-size: 13px; line-height: 1.7; color: #b9c9de;
+}
+.options.hidden { display: none; }
+.hint { margin-top: 18px; font-size: 12px; color: #7f93b0; }
+
+/* ---- Touch-Steuerung ---- */
+.touch {
+  position: absolute; inset: auto 0 0 0;
+  display: none;
+  justify-content: space-between;
+  padding: 0 22px 26px;
+  pointer-events: none;
+}
+.touch-left, .touch-right { display: flex; gap: 14px; pointer-events: auto; }
+.tbtn {
+  width: 66px; height: 66px; border-radius: 50%;
+  font-size: 30px; font-weight: 800; line-height: 1;
+  color: #F4E9D6;
+  background: rgba(16,26,43,0.72);
+  border: 2px solid rgba(233,169,59,0.55);
+  cursor: pointer; user-select: none; touch-action: none;
+}
+.tbtn.small { width: 52px; height: 52px; font-size: 22px; align-self: flex-end; }
+.tbtn.active { background: rgba(233,169,59,0.85); color: #23180a; transform: scale(0.94); }
+
+/* Touch-Buttons nur auf Touch-Geräten zeigen */
+@media (hover: none) and (pointer: coarse) {
+  .touch { display: flex; }
+}

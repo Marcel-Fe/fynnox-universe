@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0E1A2B" />
+  <title>Fynnox Universe – Band 0: Der Anfang</title>
+  <!-- App-Icon (bitte assets/icon.png als 1024x1024 ablegen) -->
+  <link rel="icon" type="image/png" href="assets/icon.png" />
+  <link rel="apple-touch-icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game" width="960" height="540"></canvas>
+
+    <!-- Startmenü (Kanon: Weiter Spielen / Neues Spiel / Optionen) -->
+    <div id="menu" class="overlay">
+      <div class="menu-card">
+        <h1 class="logo">FYNN<span>O</span>X</h1>
+        <p class="subtitle">UNIVERSE — Band 0: Der Anfang</p>
+        <div class="menu-buttons">
+          <button class="btn primary" data-action="start">Weiter&nbsp;Spielen</button>
+          <button class="btn" data-action="start">Neues&nbsp;Spiel</button>
+          <button class="btn" data-action="options">Optionen</button>
+        </div>
+        <div id="options-panel" class="options hidden">
+          <p><b>Steuerung</b></p>
+          <p>Bewegen: ← → oder A / D · Springen (Doppelsprung): ↑ / W / Leertaste</p>
+          <p>Tag/Nacht wechseln: N · Aktion: E · Am Handy: Buttons unten</p>
+        </div>
+        <p class="hint">Tipp: Springe zweimal für den <b>Doppelsprung</b> und sammle die Kristalle.</p>
+      </div>
+    </div>
+
+    <!-- Touch-Steuerung (mobil) -->
+    <div id="touch" class="touch">
+      <div class="touch-left">
+        <button id="btn-left" class="tbtn" aria-label="Links">‹</button>
+        <button id="btn-right" class="tbtn" aria-label="Rechts">›</button>
+      </div>
+      <div class="touch-right">
+        <button id="btn-daynight" class="tbtn small" aria-label="Tag/Nacht">☾</button>
+        <button id="btn-jump" class="tbtn" aria-label="Springen">⤒</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

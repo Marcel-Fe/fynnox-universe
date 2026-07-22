@@ -1,0 +1,162 @@
+// Fynnox als Zustandsautomat: idle · run · jump · doubleJump · fall.
+// Bewegungswerte kommen aus data/characters.js. Gezeichnet wird eine stilechte
+// Platzhalter-Silhouette (Fuchs im Nachtwächter-Cape). Sobald ein spriteSheet
+// gesetzt ist, kann hier auf Sprite-Rendering umgestellt werden — ohne Logik zu ändern.
+
+import { moveAndCollide } from '../systems/physics.js';
+
+export class Player {
+  constructor(character, spawn) {
+    this.char = character;
+    this.w = character.width;
+    this.h = character.height;
+    this.x = spawn.x;
+    this.y = spawn.y;
+    this.vx = 0;
+    this.vy = 0;
+    this.onGround = false;
+    this.facing = 1;            // 1 = rechts, -1 = links
+    this.state = 'idle';
+    this.jumpsUsed = 0;         // 0 am Boden, 1 nach Sprung, 2 nach Doppelsprung
+    this.animTime = 0;
+  }
+
+  update(input, level, dt) {
+    const c = this.char;
+
+    // Horizontale Bewegung
+    this.vx = 0;
+    if (input.actions.left)  { this.vx = -c.moveSpeed; this.facing = -1; }
+    if (input.actions.right) { this.vx =  c.moveSpeed; this.facing =  1; }
+
+    // Springen / Doppelsprung (nur im Frame des Drückens)
+    if (input.pressed.jump) {
+      const maxJumps = c.doubleJumpEnabled ? 2 : 1;
+      if (this.onGround) { this.vy = -c.jumpVelocity; this.jumpsUsed = 1; }
+      else if (this.jumpsUsed < maxJumps) { this.vy = -c.jumpVelocity * 0.92; this.jumpsUsed++; }
+    }
+
+    const wasOnGround = this.onGround;
+    moveAndCollide(this, level.platforms, level.gravity, dt);
+    if (this.onGround && !wasOnGround) this.jumpsUsed = 0;
+    if (this.onGround) this.jumpsUsed = 0;
+
+    // Zustand bestimmen
+    if (!this.onGround) this.state = this.vy < 0 ? (this.jumpsUsed >= 2 ? 'doubleJump' : 'jump') : 'fall';
+    else this.state = Math.abs(this.vx) > 1 ? 'run' : 'idle';
+
+    this.animTime += dt;
+
+    // Level-Grenzen (nicht aus der Welt laufen)
+    this.x = Math.max(0, Math.min(this.x, level.data.size.w - this.w));
+    if (this.y > level.data.size.h + 200) { this.x = level.data.spawn.x; this.y = level.data.spawn.y; this.vy = 0; }
+  }
+
+  // Kollisionsrechteck in Weltkoordinaten (für Sammelobjekte).
+  get rect() { return { x: this.x, y: this.y, w: this.w, h: this.h }; }
+
+  render(ctx, camera) {
+    const sx = this.x - camera.x, sy = this.y - camera.y;
+    const col = this.char.colors;
+
+    // Lauf-Wippen / Sprung-Stauchen
+    let bob = 0, squash = 1;
+    if (this.state === 'run') bob = Math.sin(this.animTime * 14) * 2;
+    if (this.state === 'jump' || this.state === 'doubleJump') squash = 1.06;
+    if (this.state === 'fall') squash = 0.96;
+
+    ctx.save();
+    ctx.translate(sx + this.w / 2, sy + this.h / 2 + bob);
+    ctx.scale(this.facing, 1);
+
+    const w = this.w, h = this.h;
+
+    // Schatten am Boden
+    if (this.onGround) {
+      ctx.save();
+      ctx.scale(1 / this.facing, 1);
+      ctx.fillStyle = 'rgba(0,0,0,0.28)';
+      ctx.beginPath(); ctx.ellipse(0, h / 2 + 2, w * 0.4, 5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    // Cape (Nachtwächter) hinter dem Körper
+    ctx.fillStyle = col.cape;
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.15, -h * 0.25);
+    ctx.quadraticCurveTo(-w * 0.55, 0, -w * 0.35, h * 0.45);
+    ctx.lineTo(w * 0.05, h * 0.35);
+    ctx.closePath(); ctx.fill();
+
+    // Schwanz
+    ctx.fillStyle = col.fur;
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.1, h * 0.1);
+    ctx.quadraticCurveTo(-w * 0.6, h * 0.05, -w * 0.5, -h * 0.2);
+    ctx.quadraticCurveTo(-w * 0.3, h * 0.05, -w * 0.1, h * 0.25);
+    ctx.closePath(); ctx.fill();
+    // Schwanzspitze hell
+    ctx.fillStyle = col.belly;
+    ctx.beginPath(); ctx.ellipse(-w * 0.5, -h * 0.15, 5, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+    // Körper
+    ctx.save();
+    ctx.scale(1, squash);
+    ctx.fillStyle = col.fur;
+    roundRect(ctx, -w * 0.28, -h * 0.15, w * 0.56, h * 0.5, 10); ctx.fill();
+    // Bauch
+    ctx.fillStyle = col.belly;
+    roundRect(ctx, -w * 0.14, -h * 0.05, w * 0.28, h * 0.32, 7); ctx.fill();
+    // Pfoten-Emblem (Gold)
+    ctx.fillStyle = col.emblem;
+    ctx.beginPath(); ctx.arc(0, h * 0.06, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-3, h * 0.0, 1.6, 0, Math.PI * 2); ctx.arc(3, h * 0.0, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // Beine (laufen: wechselnd)
+    ctx.fillStyle = col.cape;
+    const legSwing = this.state === 'run' ? Math.sin(this.animTime * 14) * 6 : 0;
+    roundRect(ctx, -w * 0.2 + legSwing, h * 0.3, w * 0.16, h * 0.2, 4); ctx.fill();
+    roundRect(ctx, w * 0.05 - legSwing, h * 0.3, w * 0.16, h * 0.2, 4); ctx.fill();
+
+    // Kopf
+    ctx.fillStyle = col.fur;
+    ctx.beginPath(); ctx.arc(w * 0.05, -h * 0.32, w * 0.3, 0, Math.PI * 2); ctx.fill();
+    // Ohren
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.15, -h * 0.5); ctx.lineTo(-w * 0.02, -h * 0.7); ctx.lineTo(w * 0.06, -h * 0.48); ctx.closePath(); ctx.fill();
+    ctx.moveTo(w * 0.14, -h * 0.52); ctx.lineTo(w * 0.28, -h * 0.72); ctx.lineTo(w * 0.32, -h * 0.5); ctx.closePath(); ctx.fill();
+    // Ohr-Innenseite
+    ctx.fillStyle = col.furLight;
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.08, -h * 0.53); ctx.lineTo(-w * 0.02, -h * 0.64); ctx.lineTo(w * 0.03, -h * 0.52); ctx.closePath(); ctx.fill();
+
+    // Schnauze hell
+    ctx.fillStyle = col.belly;
+    ctx.beginPath(); ctx.ellipse(w * 0.22, -h * 0.28, w * 0.16, w * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+    // Nase
+    ctx.fillStyle = '#2A1B14';
+    ctx.beginPath(); ctx.arc(w * 0.36, -h * 0.3, 2.6, 0, Math.PI * 2); ctx.fill();
+
+    // Goggles (Nachtwächter) über den Augen
+    ctx.strokeStyle = col.emblem; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-w * 0.16, -h * 0.4); ctx.lineTo(w * 0.28, -h * 0.42); ctx.stroke();
+    ctx.fillStyle = col.goggles;
+    ctx.beginPath(); ctx.arc(w * 0.02, -h * 0.38, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(w * 0.2, -h * 0.39, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath(); ctx.arc(w * 0.03, -h * 0.39, 1.4, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
