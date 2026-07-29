@@ -78,12 +78,12 @@ export const BAND0_MISSIONS = [
     entities: [{ boss: true, x: 3020, y: 404, w: 74, h: 96, maxHp: 3, levelW: 3200, name: 'Dr. Vorax' }],
     reward: { coins: 1000, crystals: 250, xp: 1000 },
     intro: [
-      { speaker: 'Dr. Vorax', portrait: 'thief', text: 'Ssso, du bist also der neue Nachtwächter. Wie niedlich.' },
-      { speaker: 'Dr. Vorax', portrait: 'thief', text: 'Die Energie von Raven City gehört BALD MIR! Fühl meine Kristall-Kraft!' },
+      { speaker: 'Dr. Vorax', portrait: 'vorax', text: 'Ssso, du bist also der neue Nachtwächter. Wie niedlich.' },
+      { speaker: 'Dr. Vorax', portrait: 'vorax', text: 'Die Energie von Raven City gehört BALD MIR! Fühl meine Kristall-Kraft!' },
       { speaker: 'White Raven', portrait: 'raven', text: 'Fynnox, sein Schild hält die Bälle ab. Weiche aus — wenn der Schild fällt, schlag zu (E)!' },
     ],
     outro: [
-      { speaker: 'Dr. Vorax', portrait: 'thief', text: 'Unmöglich... besiegt von einem Kind im Umhang...' },
+      { speaker: 'Dr. Vorax', portrait: 'vorax', text: 'Unmöglich... besiegt von einem Kind im Umhang...' },
       { speaker: 'Fynnox', portrait: 'fynnox', text: 'Raven City steht unter meinem Schutz. Immer.' },
       { speaker: 'Professor Orion', portrait: 'orion', text: 'Du hast es geschafft, Fynnox! Deine erste Nacht — und schon ein echter Held.' },
       { speaker: 'White Raven', portrait: 'raven', text: 'Doch der Schattenorden ist größer als Vorax. Ruh dich aus... das Abenteuer beginnt gerade erst.' },

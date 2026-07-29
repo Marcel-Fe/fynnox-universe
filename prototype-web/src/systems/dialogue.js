@@ -2,6 +2,16 @@
 // Friert das Gameplay ein, solange aktiv. Weiter mit Aktion (E / Pfote / Klick).
 import { PALETTE } from '../../data/characters.js';
 
+// Echte Portraits (aus den Charakter-Sheets freigestellt). Fehlt eins, wird gezeichnet.
+const PORTRAIT_SRC = {
+  fynnox: 'assets/sprites/portrait-fynnox.png',
+  orion: 'assets/sprites/portrait-orion.png',
+  raven: 'assets/sprites/portrait-raven.png',
+  vorax: 'assets/sprites/portrait-vorax.png',
+};
+const portraitImgs = {};
+for (const [k, src] of Object.entries(PORTRAIT_SRC)) { const im = new Image(); im.onload = () => { portraitImgs[k] = im; }; im.src = src; }
+
 export class Dialogue {
   constructor() {
     this.active = false;
@@ -57,7 +67,9 @@ export class Dialogue {
     ctx.beginPath(); ctx.arc(pcx, pcy, pr, 0, Math.PI * 2); ctx.fillStyle = '#0B1424'; ctx.fill();
     ctx.strokeStyle = PALETTE.gold; ctx.lineWidth = 2; ctx.stroke();
     ctx.save(); ctx.beginPath(); ctx.arc(pcx, pcy, pr - 2, 0, Math.PI * 2); ctx.clip();
-    drawPortrait(ctx, f.portrait, pcx, pcy, pr);
+    const pimg = portraitImgs[f.portrait];
+    if (pimg) ctx.drawImage(pimg, pcx - pr, pcy - pr, pr * 2, pr * 2);
+    else drawPortrait(ctx, f.portrait, pcx, pcy, pr);
     ctx.restore();
 
     // Name

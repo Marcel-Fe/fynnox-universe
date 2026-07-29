@@ -47,8 +47,9 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 - ✅ Welt: Level „Altstadt – Nacht", Parallax mit Tiefe/Dunst, Sterne, Mond, Vignette, Tag/Nacht
 - ✅ HUD: Avatar+Level, XP, Münzen/Kristalle, Minimap, Missions-Panel, Gadget-Leiste
 - ✅ Einsätze + Story: Dialog-System (Comic-Sprechblasen), 4 Einsätze, Belohnungen, Cliffhanger
-- 🔄 Echte Grafik: Fynnox-Sprite + Raven-City-Nacht-Hintergrund aus den Design-Sheets eingebunden
-      (freigestellt/zugeschnitten in `assets/`); Gegner/NPCs + Animations-Frames noch als Zeichnung
+- 🔄 Echte Grafik: Fynnox-Sprite, Raven-City-Nacht-Hintergrund, Dr.-Vorax-Boss + Dialog-Portraits
+      (Fynnox/Orion/Raven/Vorax) aus den Design-Sheets freigestellt in `assets/`;
+      Katze/Dieb/NPCs + Fynnox-Lauf-Frames noch offen
 - ✅ GitHub-Repo + GitHub Pages Deploy
 
 ## Bewusst NICHT im aktuellen Schritt

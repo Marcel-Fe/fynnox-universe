@@ -9,6 +9,9 @@ export class Boss {
     Object.assign(this, { w: 74, h: 96 }, spec);
     this.maxHp = spec.maxHp || 3;
     this.reset();
+    // Echtes Vorax-Artwork (freigestellt). Fällt sonst auf die Zeichnung zurück.
+    this.img = null;
+    const im = new Image(); im.onload = () => { this.img = im; }; im.src = 'assets/sprites/vorax.png';
   }
 
   reset() {
@@ -116,6 +119,13 @@ export class Boss {
     // Schatten
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(0, h / 2, w * 0.42, 7, 0, 0, 7); ctx.fill();
 
+    if (this.img) {
+      // Echtes Vorax-Artwork
+      const dh = h * 1.2, dw = dh * (this.img.width / this.img.height);
+      ctx.drawImage(this.img, -dw / 2, h / 2 - dh, dw, dh);
+      if (this.state === 'vulnerable') { ctx.fillStyle = 'rgba(199,123,255,0.14)'; ctx.beginPath(); ctx.ellipse(0, 0, dw * 0.55, dh * 0.55, 0, 0, 7); ctx.fill(); }
+    } else {
+
     // Schwanz
     ctx.fillStyle = '#3E7D45'; ctx.beginPath(); ctx.moveTo(-w * 0.2, h * 0.2); ctx.quadraticCurveTo(-w * 0.75, h * 0.35, -w * 0.6, -h * 0.05); ctx.quadraticCurveTo(-w * 0.4, h * 0.2, -w * 0.2, h * 0.35); ctx.fill();
 
@@ -141,6 +151,7 @@ export class Boss {
     const eye = this.state === 'vulnerable' ? '#C77BFF' : '#F5C560';
     ctx.fillStyle = '#2a3a2c'; ctx.beginPath(); ctx.arc(-w * 0.12, -h * 0.46, 8, 0, 7); ctx.arc(w * 0.08, -h * 0.46, 8, 0, 7); ctx.fill();
     ctx.fillStyle = eye; ctx.beginPath(); ctx.arc(-w * 0.12, -h * 0.46, 4, 0, 7); ctx.arc(w * 0.08, -h * 0.46, 4, 0, 7); ctx.fill();
+    } // Ende gezeichneter Fallback
 
     // Treffer-Blitz
     if (this.hitFlash > 0) { ctx.globalAlpha = Math.min(0.7, this.hitFlash); ctx.fillStyle = '#fff'; roundRect(ctx, -w * 0.34, -h * 0.5, w * 0.68, h, 12); ctx.fill(); ctx.globalAlpha = 1; }
