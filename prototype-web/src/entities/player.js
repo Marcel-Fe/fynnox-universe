@@ -24,6 +24,20 @@ export class Player {
     // Echtes Sprite laden (falls vorhanden). Fällt sonst auf die Silhouette zurück.
     this.sprite = null;
     if (character.spriteSheet) { const img = new Image(); img.onload = () => { this.sprite = img; }; img.src = character.spriteSheet; }
+    // Puppet-Teile laden (Körper/Schwanz/Bein). Erst wenn alle da sind, wird animiert
+    // gezeichnet — sonst bleibt es beim Einzelbild bzw. der Silhouette.
+    this.parts = null;
+    const pup = character.puppet;
+    if (pup) {
+      const imgs = {};
+      let pending = 3;
+      for (const key of ['body', 'tail', 'leg']) {
+        const img = new Image();
+        img.onload = () => { if (--pending === 0) this.parts = imgs; };
+        img.src = pup[key];
+        imgs[key] = img;
+      }
+    }
   }
 
   // Wird getroffen: kurz unverwundbar + Rückstoß weg vom Angreifer.
@@ -76,9 +90,9 @@ export class Player {
     const sx = this.x - camera.x, sy = this.y - camera.y;
     const col = this.char.colors;
 
-    // Lauf-Wippen / Sprung-Stauchen
+    // Lauf-Wippen / Sprung-Stauchen (die Puppet-Animation wippt selbst)
     let bob = 0, squash = 1;
-    if (this.state === 'run') bob = Math.sin(this.animTime * 14) * 2;
+    if (this.state === 'run' && !this.parts) bob = Math.sin(this.animTime * 14) * 2;
     if (this.state === 'jump' || this.state === 'doubleJump') squash = 1.06;
     if (this.state === 'fall') squash = 0.96;
 
@@ -100,8 +114,9 @@ export class Player {
     }
 
     // Echtes Fynnox-Sprite (falls geladen) — sonst weiter mit der Silhouette
-    if (this.sprite) {
-      const dh = h * 1.9, dw = dh * (this.sprite.width / this.sprite.height);
+    const art = this.parts ? this.parts.body : this.sprite;
+    if (art) {
+      const dh = h * 1.9, dw = dh * (art.width / art.height);
       const sq = this.state === 'jump' || this.state === 'doubleJump' ? 1.04 : (this.state === 'fall' ? 0.97 : 1);
       // weicher Glow hinter dem Helden -> hebt ihn klar vom Hintergrund ab
       const gl = ctx.createRadialGradient(0, -dh * 0.35 + h / 2, 4, 0, -dh * 0.35 + h / 2, dw * 0.95);
@@ -111,7 +126,8 @@ export class Player {
       ctx.restore();
       ctx.translate(0, h / 2); ctx.scale(1, sq); // um die Füße stauchen
       ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(this.sprite, -dw / 2, -dh, dw, dh);
+      if (this.parts) this._renderPuppet(ctx, dw, dh);
+      else ctx.drawImage(this.sprite, -dw / 2, -dh, dw, dh);
       ctx.restore();
       return;
     }
@@ -188,6 +204,55 @@ export class Player {
     ctx.beginPath(); ctx.arc(w * 0.21, -h * 0.4, 1.4, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
+  }
+
+  // Puppet-Animation: Schwanz, hinteres Bein, vorderes Bein und Körper werden aus
+  // demselben Artwork getrennt gezeichnet und je Zustand bewegt. Der Kontext ist bereits
+  // gespiegelt (facing) und auf die Fußlinie (y = 0) verschoben.
+  _renderPuppet(ctx, dw, dh) {
+    const p = this.char.puppet;
+    const t = this.animTime;
+    const step = t * p.stepRate;
+    let legFront = 0, legBack = 0, tail = 0, lean = 0, lift = 0;
+
+    switch (this.state) {
+      case 'run':
+        legFront = -Math.sin(step) * p.stepAngle;
+        legBack = Math.sin(step) * p.stepAngle;
+        tail = 0.16 + Math.sin(step * 0.5) * 0.08;
+        lean = -0.07;
+        lift = Math.abs(Math.sin(step)) * 0.022;   // Wippen im Schritt
+        break;
+      case 'jump':
+      case 'doubleJump':
+        legFront = -0.5; legBack = 0.26; tail = 0.3; lean = -0.06;
+        break;
+      case 'fall':
+        legFront = 0.3; legBack = -0.34; tail = -0.16; lean = 0.05;
+        break;
+      default: // idle — ruhiges Atmen, Schwanz wedelt
+        tail = Math.sin(t * 1.8) * 0.09;
+        lift = Math.sin(t * 1.8) * 0.004;
+        break;
+    }
+
+    // Beine bleiben am Boden, Körper und Schwanz wippen (lift).
+    const draw = (img, pivot, angle, off, bob = 0) => {
+      ctx.save();
+      const cx = -dw / 2 + pivot.x * dw;
+      const cy = -dh + pivot.y * dh;
+      ctx.translate(cx + (off ? off.x * dw : 0), cy - bob * dh + (off ? off.y * dh : 0));
+      ctx.rotate(angle);
+      ctx.translate(-cx, -cy);
+      if (off && off.brightness) ctx.filter = `brightness(${off.brightness})`;
+      ctx.drawImage(img, -dw / 2, -dh, dw, dh);
+      ctx.restore();
+    };
+
+    draw(this.parts.tail, p.tailRoot, tail, null, lift);
+    draw(this.parts.leg, p.hip, legBack, p.backLeg);
+    draw(this.parts.leg, p.hip, legFront);
+    draw(this.parts.body, p.hip, lean, null, lift);
   }
 }
 

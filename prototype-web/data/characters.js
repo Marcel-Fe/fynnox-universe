@@ -38,5 +38,20 @@ export const CHARACTERS = {
     // Echtes Fynnox-Artwork (aus dem Charakter-Sheet freigestellt). Ist es gesetzt,
     // rendert der Player das Bild statt der Platzhalter-Silhouette.
     spriteSheet: 'assets/sprites/fynnox.png',
+    // Puppet-Animation: dasselbe Artwork, in getrennt bewegliche Teile zerlegt.
+    // Alle Teile haben die Leinwandgröße von spriteSheet -> deckungsgleich zeichenbar.
+    // Fehlt eine Datei, fällt der Player automatisch auf spriteSheet zurück.
+    puppet: {
+      body: 'assets/sprites/fynnox-body.png',
+      tail: 'assets/sprites/fynnox-tail.png',
+      leg: 'assets/sprites/fynnox-leg.png',
+      // Drehpunkte relativ zur Grafik (0 = links/oben, 1 = rechts/unten)
+      hip: { x: 0.60, y: 0.75 },
+      tailRoot: { x: 0.50, y: 0.73 },
+      // Versatz des hinteren Beins (Tiefenwirkung)
+      backLeg: { x: 0.09, y: -0.025, brightness: 0.82 },
+      stepRate: 13,      // Schritte pro Sekunde * 2π
+      stepAngle: 0.46,   // maximaler Beinausschlag im Bogenmaß
+    },
   },
 };
