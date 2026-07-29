@@ -138,14 +138,18 @@ export class Player {
     ctx.fillStyle = '#2A1B14';
     ctx.beginPath(); ctx.arc(w * 0.36, -h * 0.3, 2.6, 0, Math.PI * 2); ctx.fill();
 
-    // Goggles (Nachtwächter) über den Augen
+    // Goggles (Nachtwächter) über den Augen — mit türkisem Leuchten
     ctx.strokeStyle = col.emblem; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(-w * 0.16, -h * 0.4); ctx.lineTo(w * 0.28, -h * 0.42); ctx.stroke();
+    const gl = ctx.createRadialGradient(w * 0.11, -h * 0.38, 1, w * 0.11, -h * 0.38, 12);
+    gl.addColorStop(0, 'rgba(47,211,224,0.55)'); gl.addColorStop(1, 'rgba(47,211,224,0)');
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(w * 0.11, -h * 0.38, 12, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = col.goggles;
     ctx.beginPath(); ctx.arc(w * 0.02, -h * 0.38, 4.5, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(w * 0.2, -h * 0.39, 4.5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.beginPath(); ctx.arc(w * 0.03, -h * 0.39, 1.4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(w * 0.21, -h * 0.4, 1.4, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
   }

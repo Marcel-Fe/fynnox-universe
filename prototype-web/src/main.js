@@ -6,10 +6,13 @@ import { SceneManager } from './engine/scene.js';
 import { Level } from './world/level.js';
 import { Player } from './entities/player.js';
 import { HUD } from './systems/hud.js';
+import { Dialogue, bindDialogueClick } from './systems/dialogue.js';
+import { MissionManager } from './systems/missions.js';
 import { rectsOverlap } from './systems/physics.js';
 import { setupMenu } from './ui/menu.js';
 import { CHARACTERS } from '../data/characters.js';
 import { BAND0_ALTSTADT_NACHT } from '../data/levels/band0-altstadt-nacht.js';
+import { BAND0_MISSIONS } from '../data/missions/band0.js';
 
 const VIEW_W = 960, VIEW_H = 540;
 
@@ -24,7 +27,7 @@ const scene = new SceneManager('menu');
 const input = new Input();
 const camera = new Camera(VIEW_W, VIEW_H);
 
-let level, player, hud, hudState, started = false;
+let level, player, hud, hudState, dialogue, missions, collected = 0, started = false;
 
 function startGame() {
   if (started) return;
@@ -33,21 +36,30 @@ function startGame() {
   level = new Level(BAND0_ALTSTADT_NACHT);
   camera.setBounds(level.data.size.w, level.data.size.h);
   player = new Player(CHARACTERS.fynnox, level.data.spawn);
+  collected = 0;
 
   hudState = {
-    name: 'Fynnox', level: 12, xp: 3450, xpMax: 5000,
+    name: 'Fynnox', level: 1, xp: 0, xpMax: 1000,
     maxHearts: 5, hearts: 5,
     crystals: 0, coins: 0, isDay: false,
-    mission: { type: 'HAUPTMISSION', title: 'Sammle die Kristalle', have: 0, need: level.collectibles.length },
+    mission: { type: 'HAUPTMISSION', title: '…', text: '', have: 0, need: 1 },
     gadgets: ['Scanner', 'Greifhaken', 'Rauchkapsel', 'Multitool', 'Drohne'],
     activeGadget: 0,
     map: { px: 0, py: 0, pins: [] },
   };
   hud = new HUD(hudState);
+
+  dialogue = new Dialogue();
+  bindDialogueClick(canvas, dialogue);
+  missions = new MissionManager(BAND0_MISSIONS, { dialogue, hud: hudState, getCollected: () => collected });
+  missions.start(); // startet mit dem ersten Story-Dialog
 }
 
 function update(dt) {
   if (!scene.is('play') || !started) return;
+
+  // Story-Dialog friert das Gameplay ein.
+  if (dialogue.active) { dialogue.update(input, dt); input.endFrame(); return; }
 
   // Tag/Nacht umschalten (Taste N oder Button)
   if (input.pressed.toggleDayNight) {
@@ -63,14 +75,17 @@ function update(dt) {
   for (const c of level.collectibles) {
     if (!c.collected && rectsOverlap(player.rect, { x: c.x, y: c.y, w: c.w, h: c.h })) {
       c.collected = true;
+      collected += 1;
       hudState.crystals += 25;
       hudState.coins += 10;
     }
   }
 
-  // HUD-Daten aktualisieren (Missionsfortschritt + Minimap)
+  // Missionen (Ziele, interaktive Objekte, Story-Trigger, Belohnungen)
+  missions.update(player, input, dt);
+
+  // Minimap aktualisieren
   const size = level.data.size;
-  hudState.mission.have = level.collectibles.filter((c) => c.collected).length;
   hudState.map.px = player.x / size.w;
   hudState.map.pins = level.collectibles.map((c) => ({ x: c.x / size.w, y: c.y / size.h, collected: c.collected }));
 
@@ -83,8 +98,10 @@ function render() {
   if (scene.is('play') && started) {
     level.renderBackground(ctx, camera);
     level.renderCollectibles(ctx, camera);
+    missions.render(ctx, camera);
     player.render(ctx, camera);
     hud.render(ctx);
+    dialogue.render(ctx);
   }
 }
 
@@ -105,5 +122,6 @@ loop.start();
 // Für automatische Tests aus der Konsole erreichbar.
 window.__fynnox = {
   scene, input, get player() { return player; }, get level() { return level; },
-  get hud() { return hudState; }, startGame,
+  get hud() { return hudState; }, get dialogue() { return dialogue; },
+  get missions() { return missions; }, get collected() { return collected; }, startGame,
 };

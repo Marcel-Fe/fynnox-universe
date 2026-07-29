@@ -54,8 +54,9 @@ export const BAND0_ALTSTADT_NACHT = {
   // Sammelobjekte: hier Kristalle (Kanon-Währung/Skills).
   // Ein paar bodennah im Anlauf-Bereich (leicht einsammelbar), der Rest über Plattformen.
   collectibles: [
-    { type: 'crystal', x: 300,  y: 455 },
-    { type: 'crystal', x: 460,  y: 455 },
+    { type: 'crystal', x: 260,  y: 455 },
+    { type: 'crystal', x: 400,  y: 455 },
+    { type: 'crystal', x: 540,  y: 455 },
     { type: 'crystal', x: 690,  y: 350 },
     { type: 'crystal', x: 930,  y: 290 },
     { type: 'crystal', x: 1190, y: 240 },

@@ -30,10 +30,10 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 10 | Gadgets | ⬜ | |
 | 11 | UI | 🔄 | Startmenü + HUD nach Mockup-Layout umgesetzt; weitere Screens offen |
 | 12 | HUD | ✅ | Avatar+Level, XP, Münzen/Kristalle, Minimap, Missions-Panel, Gadget-Leiste (nach `design/ui-mockups/`) |
-| 13 | Animationen | ⬜ | (Platzhalter im Prototyp; echte Sprites offen) |
-| 14 | Missionen | ⬜ | |
-| 15 | Nebenmissionen | ⬜ | |
-| 16 | Bosskämpfe | ⬜ | (Boss Band 0 = Dr. Vorax) |
+| 13 | Animationen | 🔄 | Platzhalter animiert (Lauf/Sprung, Glow, Partikel); echte Sprites offen |
+| 14 | Missionen | 🔄 | Missions-Manager + Story-Dialoge; Einsätze „erste Nacht", „Feuer", „Dieb" |
+| 15 | Nebenmissionen | 🔄 | „Katze auf dem Dach" umgesetzt |
+| 16 | Bosskämpfe | ⬜ | Boss Band 0 = Dr. Vorax (im Story-Cliffhanger angeteasert) |
 | 17 | Speicherstände | ⬜ | |
 | 18 | Audio | ⬜ | |
 | 19 | Optimierung | ⬜ | |
@@ -42,12 +42,13 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 22+ | Erweiterungen (Band 1, 2, 3 …) | ⬜ | neue `data/levels/`-Dateien, kein Engine-Umbau |
 
 ## Web-Prototyp (Vertical Slice)
-- 🔄 Engine: Game-Loop, Input (Tastatur+Touch), Kamera, Physik, Szenen
-- 🔄 Player: Fynnox-Zustandsautomat (idle/run/jump/doublejump/fall)
-- 🔄 Welt: Level „Altstadt – Nacht" aus Daten, Parallax, Plattformen, Tag/Nacht-Umschaltung
-- 🔄 Systeme: Kristalle sammeln, HUD (Herzen/Kristalle/Münzen), Startmenü
-- ⬜ Echte Sprites/Animationen (aktuell stilechte Platzhalter)
-- 🔄 GitHub-Repo + GitHub Pages Deploy
+- ✅ Engine: Game-Loop, Input (Tastatur+Touch), Kamera, Physik, Szenen
+- ✅ Player: Fynnox-Zustandsautomat (idle/run/jump/doublejump/fall) + Glow
+- ✅ Welt: Level „Altstadt – Nacht", Parallax mit Tiefe/Dunst, Sterne, Mond, Vignette, Tag/Nacht
+- ✅ HUD: Avatar+Level, XP, Münzen/Kristalle, Minimap, Missions-Panel, Gadget-Leiste
+- ✅ Einsätze + Story: Dialog-System (Comic-Sprechblasen), 4 Einsätze, Belohnungen, Cliffhanger
+- ⬜ Echte Sprites/Animationen (aktuell polierte Platzhalter — moderner Vektor-Look)
+- ✅ GitHub-Repo + GitHub Pages Deploy
 
 ## Bewusst NICHT im aktuellen Schritt
 Fertige Story, echte Sprites/Audio, Fahrzeug-Gameplay, FOX-DEN-Interior, Speichersystem,

@@ -38,27 +38,42 @@ export class Parallax {
   }
 
   render(ctx, camera, theme, viewH) {
-    for (const layer of this.layers) {
+    const W = ctx.canvas.width;
+    this.layers.forEach((layer, li) => {
       const offset = camera.parallaxX(layer.cfg.factor);
       const color = theme[layer.cfg.tone];
-      ctx.fillStyle = color;
+      const glow = theme.windowGlow;
+      const isFront = li === this.layers.length - 1;
+
       for (const b of layer.buildings) {
         const sx = b.x - offset;
-        if (sx > ctx.canvas.width || sx + b.w < 0) continue; // Culling
+        if (sx > W || sx + b.w < 0) continue; // Culling
         const top = layer.cfg.baseline - b.h;
+        ctx.fillStyle = color;
         ctx.fillRect(sx, top, b.w, b.h);
-        // Dach-Detail
-        ctx.fillRect(sx - 2, top, b.w + 4, 4);
-        // Fenster (leuchten)
-        ctx.fillStyle = theme.windowGlow;
+        ctx.fillRect(sx - 2, top, b.w + 4, 4); // Dachkante
+
         const cw = b.w / b.cols, ch = b.h / b.rows;
         for (const win of b.windows) {
-          ctx.globalAlpha = 0.55;
-          ctx.fillRect(sx + win.c * cw + cw * 0.25, top + win.r * ch + ch * 0.25, cw * 0.45, ch * 0.4);
+          const wx = sx + win.c * cw + cw * 0.25, wy = top + win.r * ch + ch * 0.25;
+          const ww = cw * 0.45, wh = ch * 0.4;
+          // weicher Schein (Bloom) nur in der Front-Ebene fürs Performance-Budget
+          if (isFront) { ctx.globalAlpha = 0.16; ctx.fillStyle = glow; ctx.fillRect(wx - 3, wy - 3, ww + 6, wh + 6); }
+          ctx.globalAlpha = isFront ? 0.75 : 0.5;
+          ctx.fillStyle = glow;
+          ctx.fillRect(wx, wy, ww, wh);
         }
         ctx.globalAlpha = 1;
-        ctx.fillStyle = color;
       }
-    }
+
+      // Atmosphärischer Dunst: hintere Ebenen sanft in die Himmelsfarbe tauchen (Tiefe)
+      const hazeA = (1 - layer.cfg.factor) * 0.22;
+      if (hazeA > 0.01) {
+        ctx.globalAlpha = hazeA;
+        ctx.fillStyle = theme.skyBottom;
+        ctx.fillRect(0, layer.cfg.baseline - layer.cfg.maxH - 20, W, layer.cfg.maxH + 40);
+        ctx.globalAlpha = 1;
+      }
+    });
   }
 }
