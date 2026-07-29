@@ -35,8 +35,8 @@ export const CHARACTERS = {
       emblem: PALETTE.gold,
       goggles: PALETTE.crystal,
     },
-    // Slot für echte Grafik. Ist er gesetzt, nutzt der Renderer später ein Sprite
-    // statt der Platzhalter-Silhouette — ohne Code-Änderung.
-    spriteSheet: null,
+    // Echtes Fynnox-Artwork (aus dem Charakter-Sheet freigestellt). Ist es gesetzt,
+    // rendert der Player das Bild statt der Platzhalter-Silhouette.
+    spriteSheet: 'assets/sprites/fynnox.png',
   },
 };

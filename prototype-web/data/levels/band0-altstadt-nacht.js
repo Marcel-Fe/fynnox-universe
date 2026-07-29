@@ -8,6 +8,8 @@ export const BAND0_ALTSTADT_NACHT = {
   size: { w: 3200, h: 540 },
   spawn: { x: 120, y: 380 },
   gravity: 2000,
+  // Echtes Hintergrundbild (aus design/, freigestellt/zugeschnitten).
+  background: 'assets/backgrounds/altstadt-nacht.png',
 
   // Tag/Nacht-Themes (Kernmechanik). daynight.js blendet zwischen beiden.
   themes: {

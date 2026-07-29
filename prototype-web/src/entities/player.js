@@ -21,6 +21,9 @@ export class Player {
     this.animTime = 0;
     this.invuln = 0;            // Unverwundbarkeit nach Treffer (Sekunden)
     this.knockback = 0;         // aktive Rückstoß-Geschwindigkeit
+    // Echtes Sprite laden (falls vorhanden). Fällt sonst auf die Silhouette zurück.
+    this.sprite = null;
+    if (character.spriteSheet) { const img = new Image(); img.onload = () => { this.sprite = img; }; img.src = character.spriteSheet; }
   }
 
   // Wird getroffen: kurz unverwundbar + Rückstoß weg vom Angreifer.
@@ -94,6 +97,17 @@ export class Player {
       ctx.fillStyle = 'rgba(0,0,0,0.28)';
       ctx.beginPath(); ctx.ellipse(0, h / 2 + 2, w * 0.4, 5, 0, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
+    }
+
+    // Echtes Fynnox-Sprite (falls geladen) — sonst weiter mit der Silhouette
+    if (this.sprite) {
+      const dh = h * 1.5, dw = dh * (this.sprite.width / this.sprite.height);
+      const sq = this.state === 'jump' || this.state === 'doubleJump' ? 1.04 : (this.state === 'fall' ? 0.97 : 1);
+      ctx.translate(0, h / 2); ctx.scale(1, sq); // um die Füße stauchen
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(this.sprite, -dw / 2, -dh, dw, dh);
+      ctx.restore();
+      return;
     }
 
     // Cape (Nachtwächter) hinter dem Körper

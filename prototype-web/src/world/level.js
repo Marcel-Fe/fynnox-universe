@@ -18,6 +18,9 @@ export class Level {
     let seed = 1337;
     const rng = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
     this.stars = Array.from({ length: 90 }, () => ({ x: rng(), y: rng() * 0.55, r: 0.4 + rng() * 1.4, tw: rng() * 6 }));
+    // Echtes Hintergrundbild (aus dem Design-Sheet). Fällt sonst auf die Skyline zurück.
+    this.bgImage = null;
+    if (data.background) { const img = new Image(); img.onload = () => { this.bgImage = img; }; img.src = data.background; }
   }
 
   update(dt) {
@@ -32,38 +35,30 @@ export class Level {
     const W = ctx.canvas.width, H = ctx.canvas.height;
 
     const night = theme.moonAlpha; // 1 = Nacht, 0 = Tag
-
-    // Himmel
-    const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, theme.skyTop);
-    sky.addColorStop(0.55, theme.skyBottom);
-    sky.addColorStop(1, theme.skyBottom);
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, W, H);
-
-    // Sterne (nur nachts, sanftes Funkeln)
-    if (night > 0.05) {
-      for (const s of this.stars) {
-        const a = night * (0.5 + 0.5 * Math.sin(this.time * 2 + s.tw));
-        ctx.fillStyle = `rgba(230,240,255,${a * 0.9})`;
-        ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-
-    // Mond (Nacht) / Sonne (Tag)
-    if (theme.moonAlpha > 0.02) drawMoon(ctx, W - 150, 96, 36, theme.moonAlpha);
-    if (theme.sunAlpha > 0.02) drawOrb(ctx, 150, 90, 40, `rgba(255,225,150,${theme.sunAlpha})`);
-
-    // Skyline (Parallax mit Fenster-Glow)
-    this.parallax.render(ctx, camera, theme, H);
-
-    // Horizont-Dunst für Tiefe (Neon-/Lichtschimmer über der Stadt)
     const groundY = 500 - camera.y;
-    const haze = ctx.createLinearGradient(0, groundY - 170, 0, groundY);
-    haze.addColorStop(0, 'rgba(0,0,0,0)');
-    haze.addColorStop(1, night > 0.5 ? 'rgba(40,70,120,0.28)' : 'rgba(200,220,240,0.22)');
-    ctx.fillStyle = haze;
-    ctx.fillRect(0, groundY - 170, W, 170);
+
+    if (this.bgImage) {
+      // Echtes Raven-City-Bild als Hintergrund, langsam mitscrollend (Parallax) + gekachelt
+      ctx.fillStyle = theme.skyBottom; ctx.fillRect(0, 0, W, groundY + 2);
+      const dh = groundY + 4, dw = dh * (this.bgImage.width / this.bgImage.height);
+      let off = (camera.x * 0.45) % dw; if (off < 0) off += dw;
+      for (let x = -off; x < W; x += dw) ctx.drawImage(this.bgImage, x, 0, dw, dh);
+      // Tag-Aufhellung / Nacht-Vertiefung
+      if (theme.sunAlpha > 0.02) { ctx.fillStyle = `rgba(255,238,190,${0.4 * theme.sunAlpha})`; ctx.fillRect(0, 0, W, groundY); }
+      if (night > 0.02) { ctx.fillStyle = `rgba(10,18,40,${0.15 * night})`; ctx.fillRect(0, 0, W, groundY); }
+    } else {
+      // Fallback: gezeichneter Himmel + Sterne + Mond + Skyline
+      const sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, theme.skyTop); sky.addColorStop(0.55, theme.skyBottom); sky.addColorStop(1, theme.skyBottom);
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+      if (night > 0.05) for (const s of this.stars) { const a = night * (0.5 + 0.5 * Math.sin(this.time * 2 + s.tw)); ctx.fillStyle = `rgba(230,240,255,${a * 0.9})`; ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill(); }
+      if (theme.moonAlpha > 0.02) drawMoon(ctx, W - 150, 96, 36, theme.moonAlpha);
+      if (theme.sunAlpha > 0.02) drawOrb(ctx, 150, 90, 40, `rgba(255,225,150,${theme.sunAlpha})`);
+      this.parallax.render(ctx, camera, theme, H);
+      const haze = ctx.createLinearGradient(0, groundY - 170, 0, groundY);
+      haze.addColorStop(0, 'rgba(0,0,0,0)'); haze.addColorStop(1, night > 0.5 ? 'rgba(40,70,120,0.28)' : 'rgba(200,220,240,0.22)');
+      ctx.fillStyle = haze; ctx.fillRect(0, groundY - 170, W, 170);
+    }
 
     // Boden mit Verlauf + Glanzkante
     const gg = ctx.createLinearGradient(0, groundY, 0, H);
