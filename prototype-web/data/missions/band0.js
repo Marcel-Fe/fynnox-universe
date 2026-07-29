@@ -25,7 +25,8 @@ export const BAND0_MISSIONS = [
     type: 'NEBENMISSION',
     title: 'Die Katze auf dem Dach',
     objective: { kind: 'entities', text: 'Rette das Kätzchen (spring hinauf!)' },
-    entities: [{ type: 'rescue', x: 1128, y: 258, w: 28, h: 30, label: 'Kätzchen' }],
+    // sprite: echtes Artwork; fehlt es, zeichnet die Engine die Platzhalter-Katze.
+    entities: [{ type: 'rescue', x: 1128, y: 258, w: 28, h: 30, label: 'Kätzchen', sprite: 'assets/sprites/cat.png', spriteScale: 2.2 }],
     reward: { coins: 150, crystals: 25, xp: 250 },
     intro: [
       { speaker: 'White Raven', portrait: 'raven', text: 'Da oben, Fynnox. Ein Kätzchen sitzt fest und traut sich nicht herunter.' },

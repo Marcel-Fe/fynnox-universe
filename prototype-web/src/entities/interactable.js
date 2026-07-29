@@ -7,6 +7,11 @@ export class Interactable {
     Object.assign(this, { w: 34, h: 34, done: false, near: false, t: Math.random() * 6 }, spec);
     this.hp = spec.type === 'fire' ? 1 : 0;   // Feuer: Lösch-Fortschritt
     this.startX = this.x;
+    this.dir = 1;                             // Blickrichtung; Artwork schaut standardmäßig nach rechts
+    // Echtes Artwork, falls die Missionsdaten eines nennen (spec.sprite).
+    // Fehlt es oder lädt es nicht, bleibt die gezeichnete Figur sichtbar.
+    this.img = null;
+    if (spec.sprite) { const im = new Image(); im.onload = () => { this.img = im; }; im.src = spec.sprite; }
   }
 
   center() { return { x: this.x + this.w / 2, y: this.y + this.h / 2 }; }
@@ -26,7 +31,7 @@ export class Interactable {
     if (this.type === 'thief') {
       // Flieht vor dem Spieler, ist aber einholbar (langsamer als Fynnox).
       const a = this.center(), px = player.x + player.w / 2;
-      if (d < 300) this.x += (a.x < px ? -1 : 1) * 200 * dt; // weg vom Spieler
+      if (d < 300) { this.dir = a.x < px ? -1 : 1; this.x += this.dir * 200 * dt; } // weg vom Spieler
       this.x = Math.max(this.startX - 40, Math.min(this.x, (this.levelW || 3200) - this.w));
       if (d < 56 && (input.pressed.action || d < 30)) { this.done = true; return true; }
       return false;
@@ -51,6 +56,8 @@ export class Interactable {
     ctx.save();
     ctx.translate(sx + this.w / 2, sy + this.h / 2);
     if (this.type === 'fire') this._fire(ctx);
+    else if (this.done) this._checkmark(ctx);
+    else if (this.img) this._sprite(ctx);
     else if (this.type === 'thief') this._thief(ctx);
     else this._cat(ctx);
     ctx.restore();
@@ -68,12 +75,27 @@ export class Interactable {
     ctx.fillText(key, x, y + bob + 1); ctx.textAlign = 'left';
   }
 
+  // Erledigt-Anzeige (für Katze, Dieb und künftige Objekte gleich)
+  _checkmark(ctx) {
+    ctx.fillStyle = '#5ED17A'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#0B1424'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-1, 5); ctx.lineTo(6, -5); ctx.stroke();
+  }
+
+  // Echtes Artwork: steht auf der Unterkante des Objekts, atmet leicht, mit warmem Glow.
+  _sprite(ctx) {
+    const bob = Math.sin(this.t * 3) * 1.5;
+    const dh = this.h * (this.spriteScale || 2.0), dw = dh * (this.img.width / this.img.height);
+    const cy = this.h / 2 - dh / 2 + bob;
+    const gl = ctx.createRadialGradient(0, cy, 3, 0, cy, dw * 0.85);
+    gl.addColorStop(0, 'rgba(233,169,59,0.22)'); gl.addColorStop(1, 'rgba(233,169,59,0)');
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.ellipse(0, cy, dw * 0.7, dh * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.save();
+    ctx.scale(this.dir, 1);
+    ctx.drawImage(this.img, -dw / 2, this.h / 2 - dh + bob, dw, dh);
+    ctx.restore();
+  }
+
   _cat(ctx) {
-    if (this.done) { // gerettet: kleiner Haken
-      ctx.fillStyle = '#5ED17A'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#0B1424'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-1, 5); ctx.lineTo(6, -5); ctx.stroke();
-      return;
-    }
     const b = Math.sin(this.t * 4) * 1.5;
     ctx.fillStyle = '#8a8f98';
     ctx.beginPath(); ctx.ellipse(0, 4 + b, 12, 10, 0, 0, Math.PI * 2); ctx.fill();       // Körper
@@ -107,7 +129,6 @@ export class Interactable {
   }
 
   _thief(ctx) {
-    if (this.done) { ctx.fillStyle = '#5ED17A'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, 7); ctx.fill(); ctx.strokeStyle = '#0B1424'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-1, 5); ctx.lineTo(6, -5); ctx.stroke(); return; }
     const run = Math.sin(this.t * 16) * 3;
     ctx.fillStyle = '#4b535e';
     ctx.beginPath(); ctx.ellipse(0, 2, 12, 14, 0, 0, Math.PI * 2); ctx.fill();  // Körper
