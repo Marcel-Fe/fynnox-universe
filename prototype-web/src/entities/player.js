@@ -19,6 +19,17 @@ export class Player {
     this.state = 'idle';
     this.jumpsUsed = 0;         // 0 am Boden, 1 nach Sprung, 2 nach Doppelsprung
     this.animTime = 0;
+    this.invuln = 0;            // Unverwundbarkeit nach Treffer (Sekunden)
+    this.knockback = 0;         // aktive Rückstoß-Geschwindigkeit
+  }
+
+  // Wird getroffen: kurz unverwundbar + Rückstoß weg vom Angreifer.
+  hurt(dirX) {
+    if (this.invuln > 0) return false;
+    this.invuln = 1.2;
+    this.knockback = dirX * 260;
+    this.vy = -320;
+    return true;
   }
 
   update(input, level, dt) {
@@ -28,6 +39,9 @@ export class Player {
     this.vx = 0;
     if (input.actions.left)  { this.vx = -c.moveSpeed; this.facing = -1; }
     if (input.actions.right) { this.vx =  c.moveSpeed; this.facing =  1; }
+    // Rückstoß nach Treffer überlagert kurz die Eingabe
+    if (Math.abs(this.knockback) > 6) { this.vx = this.knockback; this.knockback *= 0.85; } else this.knockback = 0;
+    if (this.invuln > 0) this.invuln -= dt;
 
     // Springen / Doppelsprung (nur im Frame des Drückens)
     if (input.pressed.jump) {
@@ -66,6 +80,8 @@ export class Player {
     if (this.state === 'fall') squash = 0.96;
 
     ctx.save();
+    // Treffer-Blinken
+    if (this.invuln > 0 && Math.floor(this.animTime * 14) % 2 === 0) ctx.globalAlpha = 0.35;
     ctx.translate(sx + this.w / 2, sy + this.h / 2 + bob);
     ctx.scale(this.facing, 1);
 

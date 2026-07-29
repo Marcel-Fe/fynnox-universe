@@ -19,6 +19,20 @@ export class HUD {
     this._mission(ctx, W, s);
     this._gadgets(ctx, W, s);
     this._dayNight(ctx, W, s);
+    if (s.boss && s.boss.active) this._boss(ctx, W, s.boss);
+  }
+
+  // Boss-Lebensbalken (Segmente) mittig unter der Tag/Nacht-Anzeige
+  _boss(ctx, W, b) {
+    const w = 260, x = (W - w) / 2, y = 52;
+    text(ctx, b.name, W / 2, y - 4, '#C77BFF', '800 14px', 'center');
+    const segW = (w - (b.maxHp - 1) * 6) / b.maxHp;
+    for (let i = 0; i < b.maxHp; i++) {
+      const sx = x + i * (segW + 6);
+      roundRectPath(ctx, sx, y + 4, segW, 12, 4);
+      ctx.fillStyle = i < b.hp ? '#C77BFF' : 'rgba(60,40,90,0.6)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(200,150,255,0.5)'; ctx.lineWidth = 1; roundRectPath(ctx, sx, y + 4, segW, 12, 4); ctx.stroke();
+    }
   }
 
   // Avatar + Name + Level + Herzen + XP

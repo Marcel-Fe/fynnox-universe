@@ -33,7 +33,7 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 13 | Animationen | 🔄 | Platzhalter animiert (Lauf/Sprung, Glow, Partikel); echte Sprites offen |
 | 14 | Missionen | 🔄 | Missions-Manager + Story-Dialoge; Einsätze „erste Nacht", „Feuer", „Dieb" |
 | 15 | Nebenmissionen | 🔄 | „Katze auf dem Dach" umgesetzt |
-| 16 | Bosskämpfe | ⬜ | Boss Band 0 = Dr. Vorax (im Story-Cliffhanger angeteasert) |
+| 16 | Bosskämpfe | ✅ | Boss-Finale Dr. Vorax (Energiebälle, Schild-Phasen, Herzen/Schaden) |
 | 17 | Speicherstände | ⬜ | |
 | 18 | Audio | ⬜ | |
 | 19 | Optimierung | ⬜ | |

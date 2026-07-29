@@ -67,9 +67,27 @@ export const BAND0_MISSIONS = [
     ],
     outro: [
       { speaker: 'Dieb', portrait: 'thief', text: 'Schon gut, du hast mich! Ich... ich arbeite für Dr. Vorax vom Schattenorden.' },
-      { speaker: 'Dieb', portrait: 'thief', text: 'Er will alle Energie-Kristalle der Stadt. Das war erst der Anfang!' },
-      { speaker: 'Professor Orion', portrait: 'orion', text: 'Der Schattenorden... Fynnox, du hast Raven City heute Nacht beschützt. Ich bin stolz auf dich.' },
-      { speaker: 'Professor Orion', portrait: 'orion', text: 'Aber das war nur der Anfang deines Abenteuers. — ENDE BAND 0, KAPITEL 1 —' },
+      { speaker: 'Dieb', portrait: 'thief', text: 'Er will alle Energie-Kristalle der Stadt. Und da kommt er schon selbst!' },
+    ],
+  },
+  {
+    id: 'm4-boss-vorax',
+    type: 'BOSS-MISSION',
+    title: 'Showdown: Dr. Vorax',
+    objective: { kind: 'boss', text: 'Besiege Dr. Vorax! (weiche aus, dann schlag zu)' },
+    entities: [{ boss: true, x: 3020, y: 404, w: 74, h: 96, maxHp: 3, levelW: 3200, name: 'Dr. Vorax' }],
+    reward: { coins: 1000, crystals: 250, xp: 1000 },
+    intro: [
+      { speaker: 'Dr. Vorax', portrait: 'thief', text: 'Ssso, du bist also der neue Nachtwächter. Wie niedlich.' },
+      { speaker: 'Dr. Vorax', portrait: 'thief', text: 'Die Energie von Raven City gehört BALD MIR! Fühl meine Kristall-Kraft!' },
+      { speaker: 'White Raven', portrait: 'raven', text: 'Fynnox, sein Schild hält die Bälle ab. Weiche aus — wenn der Schild fällt, schlag zu (E)!' },
+    ],
+    outro: [
+      { speaker: 'Dr. Vorax', portrait: 'thief', text: 'Unmöglich... besiegt von einem Kind im Umhang...' },
+      { speaker: 'Fynnox', portrait: 'fynnox', text: 'Raven City steht unter meinem Schutz. Immer.' },
+      { speaker: 'Professor Orion', portrait: 'orion', text: 'Du hast es geschafft, Fynnox! Deine erste Nacht — und schon ein echter Held.' },
+      { speaker: 'White Raven', portrait: 'raven', text: 'Doch der Schattenorden ist größer als Vorax. Ruh dich aus... das Abenteuer beginnt gerade erst.' },
+      { speaker: 'Professor Orion', portrait: 'orion', text: '— ENDE BAND 0, KAPITEL 1 —' },
     ],
   },
 ];

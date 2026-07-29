@@ -46,6 +46,7 @@ function startGame() {
     gadgets: ['Scanner', 'Greifhaken', 'Rauchkapsel', 'Multitool', 'Drohne'],
     activeGadget: 0,
     map: { px: 0, py: 0, pins: [] },
+    boss: { active: false },
   };
   hud = new HUD(hudState);
 
