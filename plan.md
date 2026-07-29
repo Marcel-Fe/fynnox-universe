@@ -30,7 +30,7 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 10 | Gadgets | ⬜ | |
 | 11 | UI | 🔄 | Startmenü + HUD nach Mockup-Layout umgesetzt; weitere Screens offen |
 | 12 | HUD | ✅ | Avatar+Level, XP, Münzen/Kristalle, Minimap, Missions-Panel, Gadget-Leiste (nach `design/ui-mockups/`) |
-| 13 | Animationen | 🔄 | Platzhalter animiert (Lauf/Sprung, Glow, Partikel); echte Sprites offen |
+| 13 | Animationen | 🔄 | Fynnox als Puppet animiert (Beine/Schwanz/Körper aus dem echten Artwork); Dieb-Sprite offen |
 | 14 | Missionen | 🔄 | Missions-Manager + Story-Dialoge; Einsätze „erste Nacht", „Feuer", „Dieb" |
 | 15 | Nebenmissionen | 🔄 | „Katze auf dem Dach" umgesetzt |
 | 16 | Bosskämpfe | ✅ | Boss-Finale Dr. Vorax (Energiebälle, Schild-Phasen, Herzen/Schaden) |
@@ -50,8 +50,14 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 - ✅ Echte Grafik: **3D-gerenderter Fynnox** (aus `fynnox.glb`, Seitenansicht freigestellt),
       Raven-City-Hintergrund (Tiefenunschärfe/abgedunkelt), Dr.-Vorax-Boss + Dialog-Portraits
 - ✅ „Glänzend modern": schwebende Licht-Partikel, Nebel, Glow um Figuren, Tiefen-Fokus
-- 🔄 Offen: Fynnox-Lauf-Animation (Front-View vorhanden), Katze/Dieb/NPCs als echte Sprites,
-      optional Live-3D-Modell (Three.js) statt gerenderter Views
+- ✅ Fynnox-Lauf-/Sprung-Animation: Artwork in Körper/Schwanz/Bein zerlegt und als Puppet animiert
+      (Werte datengetrieben in `data/characters.js` → `puppet`)
+- ✅ Katze als echtes Artwork (aus dem Comic-Panel freigestellt); Missions-Objekte haben jetzt einen
+      Bild-Slot (`sprite` in den Missionsdaten) mit gezeichnetem Fallback
+- 🔄 Offen: Dieb (Waschbär) als echtes Sprite — im `design/`-Material gibt es nur einen Kopf-Ausschnitt,
+      es fehlt eine Ganzkörper-Vorlage; Slot ist vorbereitet
+- ℹ️ Verworfen: Frames aus `fynnox.glb` rendern — das 3D-Modell hat **keinen Schwanz**, das Ergebnis
+      wäre schlechter als das vorhandene Artwork (geprüft mit Test-Renderings)
 - ✅ GitHub-Repo + GitHub Pages Deploy
 
 ## Bewusst NICHT im aktuellen Schritt
