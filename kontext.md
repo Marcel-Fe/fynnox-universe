@@ -179,14 +179,33 @@ Fahrzeugteile · Erfindungen/Baupläne · Goldene Pfoten · Geheime Akten.
 ## 13. UI / HUD (Design-Kanon)
 
 - **Hauptmenü:** Weiter Spielen · Neues Spiel · Optionen · Extras — mit Fynnox-Artwork, Mond, Logo.
-- **HUD:** Herzen (Leben) · Kristalle (türkis) · Münzen (gold) · Pfoten · Pause. Tag-/Nacht-Variante.
-- **Touch-Steuerung:** links/rechts, Springen, Aktion (Pfote), Greifhaken.
-- **Screens:** Inventar (Ausrüstung/Gadgets/Sammelobjekte), Skilltree, Missionstagebuch (Ziele +
+
+### Ingame-HUD (verbindliches Layout — siehe `design/ui-mockups/`)
+Definitive Referenz: die Mockups vom 29.07.2026 (Landscape z. B. `…11_30_47`, Portrait `…11_30_34`).
+
+- **Oben links:** runder **Avatar** mit **Level-Badge** (z. B. 12), darunter Reihe **Herzen** (Leben,
+  ~5) und **XP-Leiste** („XP 3.450 / 5.000", türkis).
+- **Oben Mitte/rechts:** **Münzen** (gold, Pfoten-Münze, z. B. 8.670) mit **+**-Button · **Kristalle**
+  (türkis, z. B. 2.450) mit **+**-Button · **Zahnrad** (Einstellungen).
+- **Oben rechts:** runde **Minimap** mit farbigen Missions-Pins.
+- **Seite:** **Missions-Panel** — Typ (HAUPT-/NEBEN-/DETEKTIV-/BOSS-MISSION, gold), Titel, Ziel mit
+  Zähler (z. B. „Kätzchen gerettet 0/1"), optional Nebenziel (z. B. „Geheime Akten 2/5").
+- **Unten links:** **D-Pad** (Steuerkreuz). **Unten rechts:** **Sprung** (Pfeil hoch) · **Rennen**
+  (Lauf-Icon) · **Aktion** (goldene **Pfote**).
+- **Unten Mitte:** **Gadget-Schnellleiste** mit 5 nummerierten Slots und Labels:
+  `1 Scanner · 2 Greifhaken · 3 Rauchkapsel · 4 Multitool · 5 Drohne`.
+- **Höhen-Anzeige** beim Schwingen (z. B. „45 m ↓").
+
+- **Weitere Screens:** Inventar (Ausrüstung/Gadgets/Sammelobjekte), Skilltree, Missionstagebuch (Ziele +
   Belohnung), Shop (Kostüme/Gadgets/Sammelobjekte, Preis in Kristallen), Weltkarte (Icons: Haupt-/
   Nebenmission, Geschäft, Geheimnis, Schnellreise), Dialogsystem (Portrait + Sprechblase + Name),
   Comic-Sequenzen (Panels + Sprechblasen), Ladebildschirm (Fynnox-Silhouette + Balken).
 - **Ton der Buttons:** groß, animiert, gold-umrandet auf Dunkelblau. Bedienbar per Controller, Touch,
   Maus, Gamepad.
+
+> **Neue Einsatz-Referenzen (Mockups):** Dachsprung mit Greifhaken (4 Ansichten), Rettung „Katze auf
+> Baum", Verfolgungsjagd mit **Fox Bike**, Hafenmission „Feuer löschen". Diese zeigen HUD + Kamera in
+> echten Spielsituationen und sind Zielbild für Look & Feel.
 
 ## 14. Story-Haltung (Band 0)
 

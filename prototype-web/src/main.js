@@ -34,7 +34,15 @@ function startGame() {
   camera.setBounds(level.data.size.w, level.data.size.h);
   player = new Player(CHARACTERS.fynnox, level.data.spawn);
 
-  hudState = { maxHearts: 3, hearts: 3, crystals: 0, coins: 0, isDay: false };
+  hudState = {
+    name: 'Fynnox', level: 12, xp: 3450, xpMax: 5000,
+    maxHearts: 5, hearts: 5,
+    crystals: 0, coins: 0, isDay: false,
+    mission: { type: 'HAUPTMISSION', title: 'Sammle die Kristalle', have: 0, need: level.collectibles.length },
+    gadgets: ['Scanner', 'Greifhaken', 'Rauchkapsel', 'Multitool', 'Drohne'],
+    activeGadget: 0,
+    map: { px: 0, py: 0, pins: [] },
+  };
   hud = new HUD(hudState);
 }
 
@@ -59,6 +67,12 @@ function update(dt) {
       hudState.coins += 10;
     }
   }
+
+  // HUD-Daten aktualisieren (Missionsfortschritt + Minimap)
+  const size = level.data.size;
+  hudState.mission.have = level.collectibles.filter((c) => c.collected).length;
+  hudState.map.px = player.x / size.w;
+  hudState.map.pins = level.collectibles.map((c) => ({ x: c.x / size.w, y: c.y / size.h, collected: c.collected }));
 
   input.endFrame();
 }

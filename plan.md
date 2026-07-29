@@ -19,8 +19,8 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 |---|---|---|---|
 | 00 | Projektstruktur | 🔄 | (in `docs/README.md` + dieser Datei skizziert) |
 | 01 | Ordnerstruktur | ✅ | angelegt; Doku folgt in `docs/01-ordnerstruktur.md` |
-| 02 | Architektur | 🔄 | `docs/02-architektur.md` |
-| 03 | Spielsysteme | ⬜ | |
+| 02 | Architektur | ✅ | `docs/02-architektur.md` |
+| 03 | Spielsysteme | ✅ | `docs/03-spielsysteme.md` |
 | 04 | Welt (allgemein) | ⬜ | |
 | 05 | Raven City | ⬜ | |
 | 06 | FOX DEN | ⬜ | |
@@ -28,8 +28,8 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 08 | Gegner / Schattenorden | ⬜ | |
 | 09 | Fahrzeuge | ⬜ | |
 | 10 | Gadgets | ⬜ | |
-| 11 | UI | 🔄 | Prototyp-HUD/Menü umgesetzt; Doku folgt |
-| 12 | HUD | 🔄 | im Prototyp umgesetzt |
+| 11 | UI | 🔄 | Startmenü + HUD nach Mockup-Layout umgesetzt; weitere Screens offen |
+| 12 | HUD | ✅ | Avatar+Level, XP, Münzen/Kristalle, Minimap, Missions-Panel, Gadget-Leiste (nach `design/ui-mockups/`) |
 | 13 | Animationen | ⬜ | (Platzhalter im Prototyp; echte Sprites offen) |
 | 14 | Missionen | ⬜ | |
 | 15 | Nebenmissionen | ⬜ | |
