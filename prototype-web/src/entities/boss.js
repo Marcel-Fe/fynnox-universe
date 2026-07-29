@@ -120,8 +120,11 @@ export class Boss {
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(0, h / 2, w * 0.42, 7, 0, 0, 7); ctx.fill();
 
     if (this.img) {
-      // Echtes Vorax-Artwork
-      const dh = h * 1.2, dw = dh * (this.img.width / this.img.height);
+      // Echtes Vorax-Artwork (größer + Glow zur Abhebung)
+      const dh = h * 1.42, dw = dh * (this.img.width / this.img.height);
+      const gl = ctx.createRadialGradient(0, 0, 4, 0, 0, dw);
+      gl.addColorStop(0, 'rgba(122,60,196,0.4)'); gl.addColorStop(1, 'rgba(122,60,196,0)');
+      ctx.fillStyle = gl; ctx.beginPath(); ctx.ellipse(0, 0, dw * 0.7, dh * 0.6, 0, 0, 7); ctx.fill();
       ctx.drawImage(this.img, -dw / 2, h / 2 - dh, dw, dh);
       if (this.state === 'vulnerable') { ctx.fillStyle = 'rgba(199,123,255,0.14)'; ctx.beginPath(); ctx.ellipse(0, 0, dw * 0.55, dh * 0.55, 0, 0, 7); ctx.fill(); }
     } else {

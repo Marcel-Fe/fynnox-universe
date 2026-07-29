@@ -21,12 +21,43 @@ export class Level {
     // Echtes Hintergrundbild (aus dem Design-Sheet). Fällt sonst auf die Skyline zurück.
     this.bgImage = null;
     if (data.background) { const img = new Image(); img.onload = () => { this.bgImage = img; }; img.src = data.background; }
+    // Schwebende Licht-Partikel (Glut/Leuchtstaub) + treibender Nebel -> Lebendigkeit
+    this.motes = Array.from({ length: 32 }, () => ({ x: rng(), y: rng(), r: 0.8 + rng() * 2.6, ph: rng() * 6.28, vx: (rng() - 0.35) * 0.012, vy: -(0.006 + rng() * 0.016) }));
+    this.fog = Array.from({ length: 3 }, () => ({ x: rng(), y: 0.62 + rng() * 0.18, r: 130 + rng() * 120, sp: 0.004 + rng() * 0.006 }));
   }
 
   update(dt) {
     this.time += dt;
     this.dayNight.update(dt);
     for (const c of this.collectibles) c.update(dt);
+    // Partikel + Nebel driften
+    for (const m of this.motes) {
+      m.x += m.vx * dt; m.y += m.vy * dt;
+      if (m.y < -0.05) { m.y = 1.05; m.x = (m.x * 7.3 % 1 + 1) % 1; }
+      if (m.x < -0.05) m.x = 1.05; else if (m.x > 1.05) m.x = -0.05;
+    }
+    for (const f of this.fog) { f.x += f.sp * dt; if (f.x > 1.25) f.x = -0.25; }
+  }
+
+  // Nebelschwaden über dem Hintergrund (Tiefe/Atmosphäre)
+  _renderFog(ctx, W, groundY) {
+    for (const f of this.fog) {
+      const x = ((f.x % 1) + 1) % 1 * (W + 2 * f.r) - f.r, y = groundY - 40 - f.y * 60;
+      const g = ctx.createRadialGradient(x, y, 4, x, y, f.r);
+      g.addColorStop(0, 'rgba(120,150,200,0.10)'); g.addColorStop(1, 'rgba(120,150,200,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, f.r, f.r * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // Schwebende Licht-Partikel (Glut) im Vordergrund
+  _renderMotes(ctx, W, H) {
+    for (const m of this.motes) {
+      const a = 0.18 + 0.4 * (0.5 + 0.5 * Math.sin(this.time * 1.6 + m.ph));
+      const x = m.x * W, y = m.y * H, r = m.r * 4;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(247,214,140,${a})`); g.addColorStop(1, 'rgba(247,214,140,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
   }
 
   // Zeichnet Himmel + Skyline + Boden + Plattformen. Held/HUD zeichnet main.js darüber.
@@ -46,6 +77,11 @@ export class Level {
       // Tag-Aufhellung / Nacht-Vertiefung
       if (theme.sunAlpha > 0.02) { ctx.fillStyle = `rgba(255,238,190,${0.4 * theme.sunAlpha})`; ctx.fillRect(0, 0, W, groundY); }
       if (night > 0.02) { ctx.fillStyle = `rgba(10,18,40,${0.15 * night})`; ctx.fillRect(0, 0, W, groundY); }
+      this._renderFog(ctx, W, groundY);
+      // unteren Spielbereich abdunkeln -> Figuren heben sich klar ab (Tiefe/Fokus)
+      const dk = ctx.createLinearGradient(0, groundY - 230, 0, groundY);
+      dk.addColorStop(0, 'rgba(6,10,20,0)'); dk.addColorStop(1, 'rgba(6,10,20,0.5)');
+      ctx.fillStyle = dk; ctx.fillRect(0, groundY - 230, W, 230);
     } else {
       // Fallback: gezeichneter Himmel + Sterne + Mond + Skyline
       const sky = ctx.createLinearGradient(0, 0, 0, H);
@@ -79,7 +115,10 @@ export class Level {
     }
 
     // Kalter Nacht-Farbstich
-    if (night > 0.02) { ctx.fillStyle = `rgba(12,22,48,${0.18 * night})`; ctx.fillRect(0, 0, W, H); }
+    if (night > 0.02) { ctx.fillStyle = `rgba(12,22,48,${0.12 * night})`; ctx.fillRect(0, 0, W, H); }
+
+    // Schwebende Licht-Partikel (Leben + moderner Glanz)
+    this._renderMotes(ctx, W, H);
 
     // Vignette (Fokus zur Mitte, moderner Look)
     const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.85);

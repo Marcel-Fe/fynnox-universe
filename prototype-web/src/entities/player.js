@@ -101,8 +101,14 @@ export class Player {
 
     // Echtes Fynnox-Sprite (falls geladen) — sonst weiter mit der Silhouette
     if (this.sprite) {
-      const dh = h * 1.5, dw = dh * (this.sprite.width / this.sprite.height);
+      const dh = h * 1.9, dw = dh * (this.sprite.width / this.sprite.height);
       const sq = this.state === 'jump' || this.state === 'doubleJump' ? 1.04 : (this.state === 'fall' ? 0.97 : 1);
+      // weicher Glow hinter dem Helden -> hebt ihn klar vom Hintergrund ab
+      const gl = ctx.createRadialGradient(0, -dh * 0.35 + h / 2, 4, 0, -dh * 0.35 + h / 2, dw * 0.95);
+      gl.addColorStop(0, 'rgba(47,150,200,0.5)'); gl.addColorStop(0.6, 'rgba(20,40,70,0.35)'); gl.addColorStop(1, 'rgba(20,40,70,0)');
+      ctx.save(); ctx.scale(1 / this.facing, 1); ctx.fillStyle = gl;
+      ctx.beginPath(); ctx.ellipse(0, -dh * 0.35 + h / 2, dw * 0.7, dh * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
       ctx.translate(0, h / 2); ctx.scale(1, sq); // um die Füße stauchen
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(this.sprite, -dw / 2, -dh, dw, dh);
