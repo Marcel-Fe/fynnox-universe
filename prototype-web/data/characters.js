@@ -38,6 +38,8 @@ export const CHARACTERS = {
     // Echtes Fynnox-Artwork (aus dem Charakter-Sheet freigestellt). Ist es gesetzt,
     // rendert der Player das Bild statt der Platzhalter-Silhouette.
     spriteSheet: 'assets/sprites/fynnox.png',
+    // Kopfbild für HUD-Avatar und Dialoge
+    portrait: 'assets/sprites/portrait-fynnox.png',
     // Puppet-Animation: dasselbe Artwork, in getrennt bewegliche Teile zerlegt.
     // Alle Teile haben die Leinwandgröße von spriteSheet -> deckungsgleich zeichenbar.
     // Fehlt eine Datei, fällt der Player automatisch auf spriteSheet zurück.

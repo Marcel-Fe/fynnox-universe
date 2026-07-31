@@ -39,7 +39,8 @@ function startGame() {
   collected = 0;
 
   hudState = {
-    name: 'Fynnox', level: 1, xp: 0, xpMax: 1000,
+    name: CHARACTERS.fynnox.name, avatar: CHARACTERS.fynnox.portrait,
+    level: 1, xp: 0, xpMax: 1000,
     maxHearts: 5, hearts: 5,
     crystals: 0, coins: 0, isDay: false,
     mission: { type: 'HAUPTMISSION', title: '…', text: '', have: 0, need: 1 },

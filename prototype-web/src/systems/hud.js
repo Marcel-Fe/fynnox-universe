@@ -6,6 +6,14 @@ import { PALETTE } from '../../data/characters.js';
 const GOLD = PALETTE.gold, GOLDL = PALETTE.goldLight, CRY = PALETTE.crystal;
 const PANEL = 'rgba(14,26,43,0.78)', BORDER = 'rgba(233,169,59,0.55)';
 
+// Bilder, die das HUD aus den Daten bekommt (z. B. Avatar), werden hier einmal geladen.
+const images = {};
+function image(src) {
+  if (!src) return null;
+  if (!(src in images)) { const im = new Image(); im.onload = () => { images[src] = im; }; im.src = src; images[src] = null; }
+  return images[src];
+}
+
 export class HUD {
   constructor(state) { this.state = state; }
 
@@ -38,9 +46,15 @@ export class HUD {
   // Avatar + Name + Level + Herzen + XP
   _topLeft(ctx, s) {
     const cx = 40, cy = 42, r = 24;
-    // Avatar-Ring
+    // Avatar-Ring + Kopfbild aus den Daten (fehlt es, wird das Gesicht gezeichnet)
     ring(ctx, cx, cy, r, GOLD, PANEL);
-    drawFoxFace(ctx, cx, cy, r - 4);
+    const face = image(s.avatar);
+    if (face) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r - 2, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(face, cx - r + 2, cy - r + 2, (r - 2) * 2, (r - 2) * 2);
+      ctx.restore();
+    } else drawFoxFace(ctx, cx, cy, r - 4);
     // Level-Badge
     circle(ctx, cx + r - 4, cy + r - 6, 11, '#1B2C48', GOLD);
     text(ctx, String(s.level), cx + r - 4, cy + r - 5, GOLDL, '700 12px', 'center');
