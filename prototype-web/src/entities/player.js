@@ -5,6 +5,15 @@
 
 import { moveAndCollide } from '../systems/physics.js';
 
+// Fallback-Werte für das Lauf-/Sprunggefühl. Eine Figur kann sie in
+// data/characters.js über `motion` einzeln überschreiben.
+const MOTION_DEFAULTS = {
+  accel: 1750, friction: 2400, airAccel: 1250, airDrag: 500, turnBoost: 2.3,
+  jumpCut: 0.42, coyoteTime: 0.10, jumpBuffer: 0.12, gravityFall: 1.28, maxFall: 980,
+};
+
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
 export class Player {
   constructor(character, spawn) {
     this.char = character;
@@ -21,6 +30,10 @@ export class Player {
     this.animTime = 0;
     this.invuln = 0;            // Unverwundbarkeit nach Treffer (Sekunden)
     this.knockback = 0;         // aktive Rückstoß-Geschwindigkeit
+    this.motion = { ...MOTION_DEFAULTS, ...(character.motion || {}) };
+    this.coyote = 0;            // Restzeit für den Sprung nach der Kante
+    this.jumpBuffer = 0;        // vorgemerkter Sprung kurz vor der Landung
+    this.jumpHeld = false;      // Sprungtaste seit dem Absprung gehalten?
     // Echtes Sprite laden (falls vorhanden). Fällt sonst auf die Silhouette zurück.
     this.sprite = null;
     if (character.spriteSheet) { const img = new Image(); img.onload = () => { this.sprite = img; }; img.src = character.spriteSheet; }
@@ -51,30 +64,54 @@ export class Player {
 
   update(input, level, dt) {
     const c = this.char;
+    const m = this.motion;
 
-    // Horizontale Bewegung
-    this.vx = 0;
-    if (input.actions.left)  { this.vx = -c.moveSpeed; this.facing = -1; }
-    if (input.actions.right) { this.vx =  c.moveSpeed; this.facing =  1; }
+    // Horizontale Bewegung: beschleunigen statt schlagartig springen.
+    const dir = (input.actions.right ? 1 : 0) - (input.actions.left ? 1 : 0);
+    if (dir !== 0) {
+      this.facing = dir;
+      const turning = this.vx !== 0 && Math.sign(this.vx) !== dir;
+      const accel = (this.onGround ? m.accel : m.airAccel) * (turning ? m.turnBoost : 1);
+      this.vx = clamp(this.vx + dir * accel * dt, -c.moveSpeed, c.moveSpeed);
+    } else {
+      const drop = (this.onGround ? m.friction : m.airDrag) * dt;
+      this.vx = Math.abs(this.vx) <= drop ? 0 : this.vx - Math.sign(this.vx) * drop;
+    }
     // Rückstoß nach Treffer überlagert kurz die Eingabe
     if (Math.abs(this.knockback) > 6) { this.vx = this.knockback; this.knockback *= 0.85; } else this.knockback = 0;
     if (this.invuln > 0) this.invuln -= dt;
 
-    // Springen / Doppelsprung (nur im Frame des Drückens)
-    if (input.pressed.jump) {
+    // Sprung-Komfort: Coyote-Time (kurz nach der Kante) + Puffer (kurz vor der Landung)
+    this.coyote = this.onGround ? m.coyoteTime : Math.max(0, this.coyote - dt);
+    this.jumpBuffer = input.pressed.jump ? m.jumpBuffer : Math.max(0, this.jumpBuffer - dt);
+
+    if (this.jumpBuffer > 0) {
       const maxJumps = c.doubleJumpEnabled ? 2 : 1;
-      if (this.onGround) { this.vy = -c.jumpVelocity; this.jumpsUsed = 1; }
-      else if (this.jumpsUsed < maxJumps) { this.vy = -c.jumpVelocity * 0.92; this.jumpsUsed++; }
+      if (this.onGround || this.coyote > 0) {
+        this.vy = -c.jumpVelocity; this.jumpsUsed = 1;
+        this.jumpBuffer = 0; this.coyote = 0; this.jumpHeld = true;
+      } else if (this.jumpsUsed < maxJumps) {
+        this.vy = -c.jumpVelocity * 0.92; this.jumpsUsed++;
+        this.jumpBuffer = 0; this.jumpHeld = true;
+      }
+    }
+    // Taste früh loslassen = kürzerer Sprung (Sprunghöhe ist steuerbar)
+    if (this.jumpHeld && !input.actions.jump) {
+      if (this.vy < 0) this.vy *= m.jumpCut;
+      this.jumpHeld = false;
     }
 
     const wasOnGround = this.onGround;
-    moveAndCollide(this, level.platforms, level.gravity, dt);
+    // Fallen fühlt sich besser an, wenn es etwas schneller geht als das Steigen.
+    const gravity = level.gravity * (this.vy > 0 ? m.gravityFall : 1);
+    moveAndCollide(this, level.platforms, gravity, dt);
+    if (this.vy > m.maxFall) this.vy = m.maxFall;
     if (this.onGround && !wasOnGround) this.jumpsUsed = 0;
     if (this.onGround) this.jumpsUsed = 0;
 
     // Zustand bestimmen
     if (!this.onGround) this.state = this.vy < 0 ? (this.jumpsUsed >= 2 ? 'doubleJump' : 'jump') : 'fall';
-    else this.state = Math.abs(this.vx) > 1 ? 'run' : 'idle';
+    else this.state = Math.abs(this.vx) > 8 ? 'run' : 'idle';
 
     this.animTime += dt;
 

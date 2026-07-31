@@ -21,9 +21,23 @@ export const CHARACTERS = {
     title: 'Der Nachtwächter',
     species: 'Fuchs',
     // Bewegungswerte (px/s). Bewusst hier, nicht im Engine-Code.
-    moveSpeed: 260,
-    jumpVelocity: 720,
+    moveSpeed: 285,
+    jumpVelocity: 730,   // gehaltener Sprung erreicht wie bisher gut 130 px Höhe
     doubleJumpEnabled: true, // Skilltree-Fähigkeit aus dem Kanon
+    // Lauf- und Sprunggefühl. Ohne diese Werte bewegt sich die Figur schlagartig;
+    // mit ihnen beschleunigt sie, läuft aus und der Sprung hört auf die Taste.
+    motion: {
+      accel: 1750,        // Beschleunigung am Boden (px/s²)
+      friction: 2400,     // Auslaufen ohne Eingabe
+      airAccel: 1250,     // Steuerung in der Luft
+      airDrag: 500,
+      turnBoost: 2.3,     // schnelleres Umdrehen (Bremsspur-Gefühl)
+      jumpCut: 0.42,      // Taste früh loslassen = kleinerer Sprung
+      coyoteTime: 0.10,   // kurz nach der Kante springt es trotzdem noch
+      jumpBuffer: 0.12,   // kurz vor der Landung gedrückt = zählt bei Landung
+      gravityFall: 1.28,  // fällt etwas schneller als er steigt
+      maxFall: 980,
+    },
     width: 44,
     height: 60,
     colors: {

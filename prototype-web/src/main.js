@@ -35,7 +35,9 @@ function startGame() {
 
   level = new Level(BAND0_ALTSTADT_NACHT);
   camera.setBounds(level.data.size.w, level.data.size.h);
+  camera.configure(level.data.camera);      // optionale Kamera-Werte aus den Leveldaten
   player = new Player(CHARACTERS.fynnox, level.data.spawn);
+  camera.snapTo(player.x + player.w / 2, player.y + player.h / 2);
   collected = 0;
 
   hudState = {
@@ -71,7 +73,10 @@ function update(dt) {
 
   player.update(input, level, dt);
   level.update(dt);
-  camera.follow(player.x + player.w / 2, player.y + player.h / 2, dt);
+  camera.follow(player.x + player.w / 2, player.y + player.h / 2, dt, {
+    lead: player.vx / player.char.moveSpeed,   // Vorausschau in Laufrichtung
+    grounded: player.onGround,
+  });
 
   // Kristalle einsammeln
   for (const c of level.collectibles) {
@@ -123,7 +128,7 @@ loop.start();
 
 // Für automatische Tests aus der Konsole erreichbar.
 window.__fynnox = {
-  scene, input, get player() { return player; }, get level() { return level; },
+  scene, input, camera, get player() { return player; }, get level() { return level; },
   get hud() { return hudState; }, get dialogue() { return dialogue; },
   get missions() { return missions; }, get collected() { return collected; }, startGame,
 };
