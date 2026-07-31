@@ -34,6 +34,10 @@ export class Player {
     this.coyote = 0;            // Restzeit für den Sprung nach der Kante
     this.jumpBuffer = 0;        // vorgemerkter Sprung kurz vor der Landung
     this.jumpHeld = false;      // Sprungtaste seit dem Absprung gehalten?
+    this.dust = [];             // Staubwölkchen bei Absprung, Landung und Lauf
+    this.squash = 0;            // Aufprall-Stauchung (klingt ab)
+    this.landImpact = 0;        // Wucht der letzten Landung (0..1), für die Kamera
+    this.stepTimer = 0;
     // Echtes Sprite laden (falls vorhanden). Fällt sonst auf die Silhouette zurück.
     this.sprite = null;
     if (character.spriteSheet) { const img = new Image(); img.onload = () => { this.sprite = img; }; img.src = character.spriteSheet; }
@@ -90,9 +94,11 @@ export class Player {
       if (this.onGround || this.coyote > 0) {
         this.vy = -c.jumpVelocity; this.jumpsUsed = 1;
         this.jumpBuffer = 0; this.coyote = 0; this.jumpHeld = true;
+        this._puff(7, 0.55);                       // Abdruck am Boden
       } else if (this.jumpsUsed < maxJumps) {
         this.vy = -c.jumpVelocity * 0.92; this.jumpsUsed++;
         this.jumpBuffer = 0; this.jumpHeld = true;
+        this._puff(9, 0.4, true);                  // Luftstoß beim Doppelsprung
       }
     }
     // Taste früh loslassen = kürzerer Sprung (Sprunghöhe ist steuerbar)
@@ -102,6 +108,7 @@ export class Player {
     }
 
     const wasOnGround = this.onGround;
+    const fallSpeed = this.vy;
     // Fallen fühlt sich besser an, wenn es etwas schneller geht als das Steigen.
     const gravity = level.gravity * (this.vy > 0 ? m.gravityFall : 1);
     moveAndCollide(this, level.platforms, gravity, dt);
@@ -109,10 +116,24 @@ export class Player {
     if (this.onGround && !wasOnGround) this.jumpsUsed = 0;
     if (this.onGround) this.jumpsUsed = 0;
 
+    // Landung: Wucht aus der Fallgeschwindigkeit -> Staub, Stauchung, Kamerastoß
+    this.landImpact = 0;
+    if (this.onGround && !wasOnGround && fallSpeed > 180) {
+      this.landImpact = Math.min(1, fallSpeed / m.maxFall);
+      this.squash = 0.35 + this.landImpact * 0.65;
+      this._puff(4 + Math.round(this.landImpact * 8), 0.5 + this.landImpact * 0.7);
+    }
+    this.squash = Math.max(0, this.squash - dt * 6);
+
     // Zustand bestimmen
     if (!this.onGround) this.state = this.vy < 0 ? (this.jumpsUsed >= 2 ? 'doubleJump' : 'jump') : 'fall';
     else this.state = Math.abs(this.vx) > 8 ? 'run' : 'idle';
 
+    // Laufstaub im Schritttakt
+    this.stepTimer -= dt;
+    if (this.state === 'run' && this.stepTimer <= 0) { this._puff(1, 0.25); this.stepTimer = 0.22; }
+
+    this._updateDust(dt);
     this.animTime += dt;
 
     // Level-Grenzen (nicht aus der Welt laufen)
@@ -123,9 +144,52 @@ export class Player {
   // Kollisionsrechteck in Weltkoordinaten (für Sammelobjekte).
   get rect() { return { x: this.x, y: this.y, w: this.w, h: this.h }; }
 
+  // Staubwölkchen an den Füßen. air = Luftstoß (fliegt zur Seite statt nach oben).
+  _puff(count, strength, air = false) {
+    const fx = this.x + this.w / 2, fy = this.y + this.h;
+    for (let i = 0; i < count; i++) {
+      const spread = (Math.random() - 0.5) * (air ? 2.4 : 1.6);
+      this.dust.push({
+        x: fx + spread * 9,
+        y: fy - (air ? 6 : 2) - Math.random() * 3,
+        vx: spread * (air ? 70 : 54) * strength - this.vx * 0.12,
+        vy: (air ? 20 : -34) * strength * (0.6 + Math.random() * 0.8),
+        r: (air ? 5.5 : 3.6) + Math.random() * 3.4 * strength,
+        life: (air ? 0.26 : 0.34) + Math.random() * 0.24,
+        maxLife: 1,
+      });
+    }
+    for (const d of this.dust) d.maxLife = d.maxLife === 1 ? d.life : d.maxLife;
+    if (this.dust.length > 90) this.dust.splice(0, this.dust.length - 90);
+  }
+
+  _updateDust(dt) {
+    for (const d of this.dust) {
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      d.vy += 40 * dt;          // sinkt langsam zu Boden
+      d.vx *= 0.94;
+      d.r += dt * 9;            // zerfließt
+      d.life -= dt;
+    }
+    this.dust = this.dust.filter((d) => d.life > 0);
+  }
+
+  _renderDust(ctx, camera) {
+    for (const d of this.dust) {
+      const a = Math.max(0, d.life / d.maxLife);
+      ctx.fillStyle = `rgba(232,222,202,${(0.45 * a).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(d.x - camera.x, d.y - camera.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   render(ctx, camera) {
     const sx = this.x - camera.x, sy = this.y - camera.y;
     const col = this.char.colors;
+
+    this._renderDust(ctx, camera);   // Staub liegt hinter der Figur
 
     // Lauf-Wippen / Sprung-Stauchen (die Puppet-Animation wippt selbst)
     let bob = 0, squash = 1;
@@ -161,7 +225,9 @@ export class Player {
       ctx.save(); ctx.scale(1 / this.facing, 1); ctx.fillStyle = gl;
       ctx.beginPath(); ctx.ellipse(0, -dh * 0.35 + h / 2, dw * 0.7, dh * 0.6, 0, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
-      ctx.translate(0, h / 2); ctx.scale(1, sq); // um die Füße stauchen
+      // Um die Füße stauchen: Sprung/Fall leicht, Landung kräftig (klingt ab)
+      ctx.translate(0, h / 2);
+      ctx.scale(1 + this.squash * 0.20, sq * (1 - this.squash * 0.26));
       ctx.imageSmoothingEnabled = true;
       if (this.parts) this._renderPuppet(ctx, dw, dh);
       else ctx.drawImage(this.sprite, -dw / 2, -dh, dw, dh);

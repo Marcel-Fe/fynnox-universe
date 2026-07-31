@@ -50,6 +50,11 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 - ✅ Echte Grafik: **3D-gerenderter Fynnox** (aus `fynnox.glb`, Seitenansicht freigestellt),
       Raven-City-Hintergrund (Tiefenunschärfe/abgedunkelt), Dr.-Vorax-Boss + Dialog-Portraits
 - ✅ „Glänzend modern": schwebende Licht-Partikel, Nebel, Glow um Figuren, Tiefen-Fokus
+- ✅ Spielgefühl (Mario-Vorbild): Beschleunigung + Auslaufen, steuerbare Sprunghöhe (65/127 px),
+      Coyote-Time 100 ms, Sprungpuffer 120 ms; Werte als Daten in `characters.js` → `motion`
+- ✅ Kamera: Totzone, Vorausschau bis 105 px, vertikal träge (Sprung bewegt das Bild nicht),
+      kurzer Stoß bei harter Landung; pro Level über `level.data.camera` einstellbar
+- ✅ Wucht: Staub bei Absprung/Landung/Lauf, Luftstoß beim Doppelsprung, Aufprall-Stauchung
 - ✅ Fynnox-Lauf-/Sprung-Animation: Artwork in Körper/Schwanz/Bein zerlegt und als Puppet animiert
       (Werte datengetrieben in `data/characters.js` → `puppet`)
 - ✅ Katze als echtes Artwork (aus dem Comic-Panel freigestellt); Missions-Objekte haben jetzt einen

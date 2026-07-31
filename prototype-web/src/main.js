@@ -77,6 +77,8 @@ function update(dt) {
     lead: player.vx / player.char.moveSpeed,   // Vorausschau in Laufrichtung
     grounded: player.onGround,
   });
+  // harte Landung gibt dem Bild einen kurzen Stoß
+  if (player.landImpact > 0.55) camera.impulse(1.5 + player.landImpact * 3);
 
   // Kristalle einsammeln
   for (const c of level.collectibles) {

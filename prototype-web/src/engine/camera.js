@@ -25,8 +25,13 @@ export class Camera {
     this.worldW = viewW;
     this.worldH = viewH;
     this.look = 0;
+    this.shake = 0;      // Restausschlag des Kamerastoßes (px)
+    this.shakeT = 0;
     this.cfg = { ...DEFAULTS };
   }
+
+  // Kurzer Stoß, z. B. bei harter Landung oder Treffer. Nimmt den stärkeren Wert.
+  impulse(px) { this.shake = Math.max(this.shake, px); }
 
   setBounds(worldW, worldH) { this.worldW = worldW; this.worldH = worldH; }
 
@@ -52,6 +57,15 @@ export class Camera {
     this.y += softStep(desiredY - this.y, c.deadY) * Math.min(1, dt * vSpeed);
 
     this._clamp();
+
+    // Stoß liegt als kurzer Versatz obendrauf und klingt schnell ab. Er ist
+    // kleiner als die Totzone, deshalb schaukelt sich nichts auf.
+    if (this.shake > 0.2) {
+      this.shakeT += dt * 46;
+      this.x += Math.sin(this.shakeT) * this.shake;
+      this.y += Math.cos(this.shakeT * 1.4) * this.shake * 0.7;
+      this.shake *= Math.pow(0.004, dt);
+    } else this.shake = 0;
   }
 
   // Bei Szenenwechsel/Respawn: sofort hinspringen, statt hinterherzufahren.
