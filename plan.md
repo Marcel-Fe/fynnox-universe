@@ -30,7 +30,7 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 10 | Gadgets | ⬜ | |
 | 11 | UI | 🔄 | Startmenü + HUD nach Mockup-Layout umgesetzt; weitere Screens offen |
 | 12 | HUD | ✅ | Avatar+Level, XP, Münzen/Kristalle, Minimap, Missions-Panel, Gadget-Leiste (nach `design/ui-mockups/`) |
-| 13 | Animationen | 🔄 | Fynnox als Puppet animiert (Beine/Schwanz/Körper aus dem echten Artwork); Dieb-Sprite offen |
+| 13 | Animationen | 🔄 | Fynnox als Puppet animiert (Beine/Schwanz/Körper aus dem echten Artwork); alle Figuren als echte Sprites |
 | 14 | Missionen | 🔄 | Missions-Manager + Story-Dialoge; Einsätze „erste Nacht", „Feuer", „Dieb" |
 | 15 | Nebenmissionen | 🔄 | „Katze auf dem Dach" umgesetzt |
 | 16 | Bosskämpfe | ✅ | Boss-Finale Dr. Vorax (Energiebälle, Schild-Phasen, Herzen/Schaden) |
@@ -54,8 +54,8 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
       (Werte datengetrieben in `data/characters.js` → `puppet`)
 - ✅ Katze als echtes Artwork (aus dem Comic-Panel freigestellt); Missions-Objekte haben jetzt einen
       Bild-Slot (`sprite` in den Missionsdaten) mit gezeichnetem Fallback
-- 🔄 Offen: Dieb (Waschbär) als echtes Sprite — im `design/`-Material gibt es nur einen Kopf-Ausschnitt,
-      es fehlt eine Ganzkörper-Vorlage; Slot ist vorbereitet
+- ✅ Dieb (Waschbär) als echtes Sprite + eigenes Dialog-Portrait (neues Artwork vom 31.07.2026);
+      `spriteAnchor` in den Missionsdaten setzt den Körper korrekt über die Trefferbox
 - ℹ️ Verworfen: Frames aus `fynnox.glb` rendern — das 3D-Modell hat **keinen Schwanz**, das Ergebnis
       wäre schlechter als das vorhandene Artwork (geprüft mit Test-Renderings)
 - ✅ GitHub-Repo + GitHub Pages Deploy
