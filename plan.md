@@ -38,7 +38,7 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 18 | Audio | ⬜ | |
 | 19 | Optimierung | ⬜ | |
 | 20 | Tests | ✅ | `tests/` — `node tests/run.mjs`: Speicherstände + kompletter Durchlauf Band 0 im echten Browser (39 Checks, eigener Server, kein Framework) |
-| 21 | Release | ⬜ | GitHub Pages Web-App |
+| 21 | Release | 🔄 | Live als Web-App: https://marcel-fe.github.io/fynnox-universe/ (Pages aus `main`, Root leitet auf `prototype-web/`) |
 | 22+ | Erweiterungen (Band 1, 2, 3 …) | ⬜ | neue `data/levels/`-Dateien, kein Engine-Umbau |
 
 ## Web-Prototyp (Vertical Slice)

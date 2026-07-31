@@ -7,10 +7,11 @@ Held: **Fynnox**, der Nachtwächter von **Raven City**.
 > nur mit schriftlicher Genehmigung. Siehe [`LICENSE`](LICENSE).
 
 > **Status:** Fundament + spielbarer Web-Prototyp (Vertical Slice). Ziel-Engine langfristig Unity/URP.
-> Grafik im Prototyp sind stilechte **Platzhalter** — echte Sprites folgen.
+> Figuren, Portraits und Hintergrund sind echtes Artwork; für alles Übrige zeichnet die Engine
+> stilechte Platzhalter.
 
 ## 🎮 Web-App spielen
-- **Live (GitHub Pages):** wird nach dem ersten Deploy hier verlinkt.
+- **Live (GitHub Pages):** https://marcel-fe.github.io/fynnox-universe/
 - **Lokal:** im Ordner `prototype-web/` einen Webserver starten, z. B.
   `python -m http.server 8000` → dann `http://localhost:8000` öffnen.
   (Wichtig: ES-Module brauchen einen Server, ein Doppelklick auf die Datei reicht nicht.)
