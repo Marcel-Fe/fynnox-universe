@@ -61,6 +61,8 @@ export const BAND0_MISSIONS = [
     type: 'DETEKTIV-MISSION',
     title: 'Der Schatten-Dieb',
     objective: { kind: 'entities', text: 'Verfolge und schnapp den Dieb!' },
+    // Sobald ein Ganzkörper-Artwork des Waschbär-Diebs existiert: sprite/spriteScale wie bei der Katze
+    // ergänzen (assets/sprites/thief.png). Bis dahin zeichnet die Engine den Platzhalter-Dieb.
     entities: [{ type: 'thief', x: 2500, y: 452, w: 30, h: 40, label: 'Dieb', levelW: 3200 }],
     reward: { coins: 400, crystals: 100, xp: 600 },
     intro: [
