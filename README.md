@@ -29,6 +29,7 @@ Held: **Fynnox**, der Nachtwächter von **Raven City**.
 | [`docs/`](docs/) | nummerierte Entwicklungsdokumente (Architektur …) |
 | [`design/`](design/) | Original-Konzept-Grafiken |
 | [`prototype-web/`](prototype-web/) | spielbarer Web-Prototyp (Vanilla JS + Canvas) |
+| [`tests/`](tests/) | automatischer Browser-Durchlauf — `node tests/run.mjs` |
 
 ## 🧩 Modularität
 Charaktere, Level und ganze Comic-Bände sind **Daten**, kein Code. Ein neuer Band = neue Datei in

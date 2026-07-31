@@ -14,3 +14,4 @@ npm-debug.log*
 # temporär
 *.tmp
 .cache/
+tests/.out/

@@ -37,7 +37,7 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 17 | Speicherstände | ✅ | `src/systems/save.js` (localStorage, versioniert `fynnox:save:v1`); Auto-Speichern nach Einsatz, beim Kristall (5 s gedrosselt) und beim Seitenwechsel; Menü „Weiter Spielen" vs. „Neues Spiel" |
 | 18 | Audio | ⬜ | |
 | 19 | Optimierung | ⬜ | |
-| 20 | Tests | 🔄 | Prototyp-Smoke-Test via Playwright |
+| 20 | Tests | ✅ | `tests/` — `node tests/run.mjs`: Speicherstände + kompletter Durchlauf Band 0 im echten Browser (39 Checks, eigener Server, kein Framework) |
 | 21 | Release | ⬜ | GitHub Pages Web-App |
 | 22+ | Erweiterungen (Band 1, 2, 3 …) | ⬜ | neue `data/levels/`-Dateien, kein Engine-Umbau |
 

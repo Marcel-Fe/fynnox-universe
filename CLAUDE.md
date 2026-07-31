@@ -27,6 +27,7 @@
 - `kontext.md`, `CLAUDE.md`, `plan.md` — Fundament im Wurzelverzeichnis.
 - `docs/` — nummerierte professionelle Entwicklungsdokumente (siehe `docs/README.md`).
 - `prototype-web/` — spielbarer Web-Prototyp: `src/` = Engine/Logik, `data/` = Inhalt, `assets/` = Grafik/Ton.
+- `tests/` — automatischer Browser-Durchlauf (`node tests/run.mjs`), siehe `tests/README.md`.
 
 ## Namens- & Sprachregeln
 - **Doku auf Deutsch**, **Code (Variablen/Funktionen/Dateien) auf Englisch**.
@@ -37,7 +38,8 @@
 - Bei Neuerstellung/Erstplanung: Plan zeigen, dann umsetzen. Bei Bug-Fixes/kleinen Änderungen: direkt.
 - Bestehenden Code **immer lesen**, bevor er geändert wird; nach bestehender Implementierung suchen,
   bevor Neues entsteht.
-- Nach kritischen Änderungen am Prototyp: **im Browser testen** (Playwright) und mit Screenshot belegen.
+- Nach kritischen Änderungen am Prototyp: **im Browser testen** (`node tests/run.mjs`, muss grün bleiben)
+  und mit Screenshot belegen.
 - `plan.md` nach jedem abgeschlossenen Schritt aktualisieren (Status ✅/🔄/⬜).
 - Keine Dateien löschen ohne Bestätigung. Kein `git push --force` ohne Nachfrage.
 
