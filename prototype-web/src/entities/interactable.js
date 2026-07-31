@@ -82,16 +82,19 @@ export class Interactable {
   }
 
   // Echtes Artwork: steht auf der Unterkante des Objekts, atmet leicht, mit warmem Glow.
+  // spriteAnchor sagt, welcher Anteil der Bildbreite über der Trefferbox liegt (0.5 = Bildmitte) —
+  // nötig bei Figuren mit wehendem Umhang, damit der Körper und nicht der Stoff auf dem Punkt sitzt.
   _sprite(ctx) {
     const bob = Math.sin(this.t * 3) * 1.5;
     const dh = this.h * (this.spriteScale || 2.0), dw = dh * (this.img.width / this.img.height);
+    const ax = this.spriteAnchor === undefined ? 0.5 : this.spriteAnchor;
     const cy = this.h / 2 - dh / 2 + bob;
-    const gl = ctx.createRadialGradient(0, cy, 3, 0, cy, dw * 0.85);
+    const gl = ctx.createRadialGradient(0, cy, 3, 0, cy, dh * 0.8);
     gl.addColorStop(0, 'rgba(233,169,59,0.22)'); gl.addColorStop(1, 'rgba(233,169,59,0)');
-    ctx.fillStyle = gl; ctx.beginPath(); ctx.ellipse(0, cy, dw * 0.7, dh * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.ellipse(0, cy, dh * 0.5, dh * 0.6, 0, 0, Math.PI * 2); ctx.fill();
     ctx.save();
     ctx.scale(this.dir, 1);
-    ctx.drawImage(this.img, -dw / 2, this.h / 2 - dh + bob, dw, dh);
+    ctx.drawImage(this.img, -dw * ax, this.h / 2 - dh + bob, dw, dh);
     ctx.restore();
   }
 

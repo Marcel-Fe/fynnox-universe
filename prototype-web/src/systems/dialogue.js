@@ -8,6 +8,7 @@ const PORTRAIT_SRC = {
   orion: 'assets/sprites/portrait-orion.png',
   raven: 'assets/sprites/portrait-raven.png',
   vorax: 'assets/sprites/portrait-vorax.png',
+  thief: 'assets/sprites/portrait-thief.png',
 };
 const portraitImgs = {};
 for (const [k, src] of Object.entries(PORTRAIT_SRC)) { const im = new Image(); im.onload = () => { portraitImgs[k] = im; }; im.src = src; }
