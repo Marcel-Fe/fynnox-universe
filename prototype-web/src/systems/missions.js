@@ -4,11 +4,12 @@ import { Interactable } from '../entities/interactable.js';
 import { Boss } from '../entities/boss.js';
 
 export class MissionManager {
-  constructor(missions, { dialogue, hud, getCollected }) {
+  constructor(missions, { dialogue, hud, getCollected, onMissionDone }) {
     this.missions = missions;
     this.dialogue = dialogue;
     this.hud = hud;
     this.getCollected = getCollected; // () => Anzahl eingesammelter Kristalle
+    this.onMissionDone = onMissionDone || null; // Checkpoint-Meldung nach Abschluss
     this.index = -1;
     this.state = 'idle';              // idle | intro | active | outro | done
     this.entities = [];
@@ -18,8 +19,14 @@ export class MissionManager {
 
   start() { this.index = 0; this._begin(); }
 
-  // Dev/Test: direkt zu Mission i springen (überspringt vorherige).
-  skipTo(i) { this.dialogue.active = false; this.index = i; this._begin(); }
+  // Dev/Test + Spielstand: direkt zu Mission i springen (überspringt vorherige).
+  // i wird begrenzt; i >= Anzahl bedeutet "alle Einsätze erledigt".
+  skipTo(i) {
+    this.dialogue.active = false;
+    this.index = Math.max(0, Math.min(Math.floor(i) || 0, this.missions.length));
+    if (this.index >= this.missions.length) this._finish();
+    else this._begin();
+  }
 
   _begin() {
     const m = this.missions[this.index];
@@ -93,6 +100,8 @@ export class MissionManager {
       this.index += 1;
       if (this.index < this.missions.length) this._begin();
       else this._finish();
+      // Erst jetzt ist der Fortschritt endgültig — guter Checkpoint zum Speichern.
+      if (this.onMissionDone) this.onMissionDone(this.index);
     });
   }
 

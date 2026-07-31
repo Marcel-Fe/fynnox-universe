@@ -10,6 +10,7 @@ import { Dialogue, bindDialogueClick } from './systems/dialogue.js';
 import { MissionManager } from './systems/missions.js';
 import { rectsOverlap } from './systems/physics.js';
 import { setupMenu } from './ui/menu.js';
+import * as SaveStore from './systems/save.js';
 import { CHARACTERS } from '../data/characters.js';
 import { BAND0_ALTSTADT_NACHT } from '../data/levels/band0-altstadt-nacht.js';
 import { BAND0_MISSIONS } from '../data/missions/band0.js';
@@ -42,8 +43,9 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
 
 let level, player, hud, hudState, dialogue, missions, collected = 0, started = false;
+let autoSaveCooldown = 0; // Sekunden bis zum nächsten Kristall-Speichern (Drosselung)
 
-function startGame() {
+function startGame(options = {}) {
   if (started) return;
   started = true;
 
@@ -64,17 +66,98 @@ function startGame() {
     activeGadget: 0,
     map: { px: 0, py: 0, pins: [] },
     boss: { active: false },
+    savedFlash: 0,            // > 0 -> HUD zeigt kurz "Gespeichert"
   };
   hud = new HUD(hudState);
 
   dialogue = new Dialogue();
   bindDialogueClick(canvas, dialogue);
-  missions = new MissionManager(BAND0_MISSIONS, { dialogue, hud: hudState, getCollected: () => collected });
-  missions.start(); // startet mit dem ersten Story-Dialog
+  missions = new MissionManager(BAND0_MISSIONS, {
+    dialogue, hud: hudState, getCollected: () => collected,
+    onMissionDone: () => saveNow(),          // Checkpoint nach jedem Einsatz
+  });
+
+  const loaded = options.continueSave ? SaveStore.load() : null;
+  if (loaded && applySave(loaded)) return;   // fortgesetzt — kein Story-Neustart
+  missions.start();                          // startet mit dem ersten Story-Dialog
+}
+
+// ---- Spielstand: einsammeln & anwenden ----------------------------------
+// Der Stand kennt nur IDs/Indizes aus data/ — kein levelspezifisches Wissen im Code.
+
+function collectSave() {
+  return {
+    levelId: level.data.id,
+    missionIndex: missions.index,
+    collected,
+    collectibles: level.collectibles.map((c) => c.collected),
+    isDay: level.dayNight.isDay,
+    player: { x: player.x, y: player.y },
+    hud: {
+      level: hudState.level, xp: hudState.xp, xpMax: hudState.xpMax,
+      hearts: hudState.hearts, maxHearts: hudState.maxHearts,
+      coins: hudState.coins, crystals: hudState.crystals,
+    },
+  };
+}
+
+// Schreibt einen geladenen Stand zurück. Fehlende oder unbrauchbare Felder
+// behalten ihren Standardwert, damit ein alter Stand nichts kaputt macht.
+// Gibt false zurück, wenn der Stand nicht zu diesem Level gehört.
+function applySave(data) {
+  if (data.levelId !== level.data.id) return false;
+
+  const h = data.hud || {};
+  hudState.level = num(h.level, hudState.level, 1);
+  hudState.xpMax = num(h.xpMax, hudState.xpMax, 1);
+  hudState.xp = clamp(num(h.xp, hudState.xp, 0), 0, hudState.xpMax);
+  hudState.maxHearts = clamp(num(h.maxHearts, hudState.maxHearts, 1), 1, 20);
+  hudState.hearts = clamp(num(h.hearts, hudState.hearts, 0), 0, hudState.maxHearts);
+  hudState.coins = num(h.coins, hudState.coins, 0);
+  hudState.crystals = num(h.crystals, hudState.crystals, 0);
+
+  // Sammelobjekte nur übernehmen, wenn die Liste zum Level passt.
+  const flags = data.collectibles;
+  if (Array.isArray(flags) && flags.length === level.collectibles.length) {
+    level.collectibles.forEach((c, i) => { c.collected = !!flags[i]; });
+  }
+  collected = clamp(num(data.collected, 0, 0), 0, level.collectibles.length);
+
+  if (!!data.isDay !== level.dayNight.isDay) level.dayNight.toggle();
+  level.dayNight.t = level.dayNight.target;   // ohne Überblendung starten
+  hudState.isDay = level.dayNight.isDay;
+
+  const p = data.player || {};
+  player.x = clamp(num(p.x, player.x, 0), 0, level.data.size.w - player.w);
+  player.y = clamp(num(p.y, player.y, 0), 0, level.data.size.h);
+  player.vx = 0; player.vy = 0;
+  camera.snapTo(player.x + player.w / 2, player.y + player.h / 2);
+
+  // Der laufende Einsatz beginnt neu (inklusive Intro-Dialog) — sein
+  // Zwischenstand ist nicht rekonstruierbar, der Fortschritt davor schon.
+  missions.skipTo(num(data.missionIndex, 0, 0));
+  return true;
+}
+
+// Zahl aus dem Stand übernehmen; unbrauchbar -> Standardwert.
+function num(v, fallback, min) {
+  if (typeof v !== 'number' || !Number.isFinite(v)) return fallback;
+  return min === undefined ? v : Math.max(min, v);
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+function saveNow() {
+  if (!started) return false;
+  const ok = SaveStore.save(collectSave());
+  if (ok) hudState.savedFlash = 2;   // Sekunden
+  return ok;
 }
 
 function update(dt) {
   if (!scene.is('play') || !started) return;
+
+  // "Gespeichert"-Hinweis läuft auch während eines Dialogs aus.
+  if (hudState.savedFlash > 0) hudState.savedFlash = Math.max(0, hudState.savedFlash - dt);
 
   // Story-Dialog friert das Gameplay ein.
   if (dialogue.active) { dialogue.update(input, dt); input.endFrame(); return; }
@@ -95,14 +178,19 @@ function update(dt) {
   if (player.landImpact > 0.55) camera.impulse(1.5 + player.landImpact * 3);
 
   // Kristalle einsammeln
+  let gotCrystal = false;
   for (const c of level.collectibles) {
     if (!c.collected && rectsOverlap(player.rect, { x: c.x, y: c.y, w: c.w, h: c.h })) {
       c.collected = true;
       collected += 1;
       hudState.crystals += 25;
       hudState.coins += 10;
+      gotCrystal = true;
     }
   }
+  // Gedrosselt speichern: höchstens alle 5 s, nicht bei jedem Kristall.
+  autoSaveCooldown = Math.max(0, autoSaveCooldown - dt);
+  if (gotCrystal && autoSaveCooldown === 0) { saveNow(); autoSaveCooldown = 5; }
 
   // Missionen (Ziele, interaktive Objekte, Story-Trigger, Belohnungen)
   missions.update(player, input, dt);
@@ -140,7 +228,15 @@ input.attach({
   'btn-daynight': 'toggleDayNight',
 });
 
-setupMenu(scene, startGame);
+setupMenu(scene, {
+  hasSave: SaveStore.hasSave(),
+  onContinue: () => startGame({ continueSave: true }),
+  onNew: () => { SaveStore.clear(); startGame(); },
+});
+
+// Beim Verlassen/Wegschalten der Seite sichern (letzte Chance).
+window.addEventListener('pagehide', () => saveNow());
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
 
 const loop = new GameLoop(update, render);
 loop.start();
@@ -150,4 +246,5 @@ window.__fynnox = {
   scene, input, camera, get player() { return player; }, get level() { return level; },
   get hud() { return hudState; }, get dialogue() { return dialogue; },
   get missions() { return missions; }, get collected() { return collected; }, startGame,
+  save: { now: saveNow, collect: () => collectSave(), ...SaveStore },
 };

@@ -29,7 +29,17 @@ export class HUD {
     this._mission(ctx, W, s);
     this._gadgets(ctx, W, s);
     this._dayNight(ctx, W, s);
+    if (s.savedFlash > 0) this._saved(ctx, W, s.savedFlash);
     if (s.boss && s.boss.active) this._boss(ctx, W, s.boss);
+  }
+
+  // Kurze Rückmeldung nach dem automatischen Speichern (links unter der XP-Leiste,
+  // blendet aus). Bewusst nicht mittig — dort liegt der Boss-Balken.
+  _saved(ctx, W, flash) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, flash);
+    text(ctx, '✓ Gespeichert', 74, 82, GOLDL, '700 12px');
+    ctx.restore();
   }
 
   // Boss-Lebensbalken (Segmente) mittig unter der Tag/Nacht-Anzeige

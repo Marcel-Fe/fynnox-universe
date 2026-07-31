@@ -84,6 +84,11 @@ html, body {
   transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+/* Ohne Spielstand ist "Weiter Spielen" sichtbar nicht anwählbar. */
+.btn:disabled, .btn.disabled {
+  opacity: 0.4; cursor: not-allowed; filter: grayscale(0.6);
+}
+.btn:disabled:hover, .btn.disabled:hover { transform: none; box-shadow: none; }
 .btn.primary {
   background: linear-gradient(180deg, var(--gold-light), var(--gold));
   color: #23180a; border-color: var(--gold-light);

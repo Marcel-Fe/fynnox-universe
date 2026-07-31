@@ -34,7 +34,7 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 | 14 | Missionen | 🔄 | Missions-Manager + Story-Dialoge; Einsätze „erste Nacht", „Feuer", „Dieb" |
 | 15 | Nebenmissionen | 🔄 | „Katze auf dem Dach" umgesetzt |
 | 16 | Bosskämpfe | ✅ | Boss-Finale Dr. Vorax (Energiebälle, Schild-Phasen, Herzen/Schaden) |
-| 17 | Speicherstände | ⬜ | |
+| 17 | Speicherstände | ✅ | `src/systems/save.js` (localStorage, versioniert `fynnox:save:v1`); Auto-Speichern nach Einsatz, beim Kristall (5 s gedrosselt) und beim Seitenwechsel; Menü „Weiter Spielen" vs. „Neues Spiel" |
 | 18 | Audio | ⬜ | |
 | 19 | Optimierung | ⬜ | |
 | 20 | Tests | 🔄 | Prototyp-Smoke-Test via Playwright |
