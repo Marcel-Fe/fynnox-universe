@@ -17,8 +17,10 @@ function image(src) {
 export class HUD {
   constructor(state) { this.state = state; }
 
-  render(ctx) {
-    const s = this.state, W = ctx.canvas.width;
+  // W/H = logische Spielfläche (nicht die Pixelgröße des Canvas).
+  render(ctx, W = 960, H = 540) {
+    const s = this.state;
+    this._viewH = H;
     ctx.textBaseline = 'middle';
 
     this._topLeft(ctx, s);
@@ -123,7 +125,7 @@ export class HUD {
   // Gadget-Schnellleiste unten Mitte (5 Slots + Labels)
   _gadgets(ctx, W, s) {
     const n = s.gadgets.length, slot = 54, gap = 10, totalW = n * slot + (n - 1) * gap;
-    let x = (W - totalW) / 2, y = ctx.canvas.height - 66;
+    let x = (W - totalW) / 2, y = (this._viewH || 540) - 66;
     s.gadgets.forEach((g, i) => {
       roundRectPath(ctx, x, y, slot, slot, 10); ctx.fillStyle = PANEL; ctx.fill();
       ctx.strokeStyle = i === s.activeGadget ? GOLDL : BORDER; ctx.lineWidth = i === s.activeGadget ? 2.5 : 1.4;

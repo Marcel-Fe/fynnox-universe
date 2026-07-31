@@ -39,18 +39,19 @@ export const BAND0_ALTSTADT_NACHT = {
   // Kopffreiheit: der am Boden stehende Fynnox hat den Kopf bei y=440, daher liegen
   // alle schwebenden Plattform-Unterkanten darüber (y+h <= 428). Spawn-Bereich (x<600)
   // bleibt frei von Plattformen -> immer freier Anlauf zum Springen.
+  // oneWay: Schwebeplattform — von unten springt man hindurch, gelandet wird nur von oben.
   platforms: [
-    { x: 0,    y: 500, w: 3200, h: 40 },   // Boden
-    { x: 620,  y: 400, w: 150,  h: 18 },
-    { x: 860,  y: 340, w: 140,  h: 18 },
-    { x: 1120, y: 290, w: 140,  h: 18 },
-    { x: 1380, y: 350, w: 150,  h: 18 },
-    { x: 1640, y: 410, w: 150,  h: 18 },
-    { x: 1900, y: 360, w: 140,  h: 18 },
-    { x: 2160, y: 300, w: 150,  h: 18 },
-    { x: 2420, y: 370, w: 160,  h: 18 },
-    { x: 2700, y: 405, w: 150,  h: 18 },
-    { x: 2960, y: 360, w: 150,  h: 18 },
+    { x: 0,    y: 500, w: 3200, h: 40 },   // Boden (massiv)
+    { x: 620,  y: 400, w: 150,  h: 18, oneWay: true },
+    { x: 860,  y: 340, w: 140,  h: 18, oneWay: true },
+    { x: 1120, y: 290, w: 140,  h: 18, oneWay: true },
+    { x: 1380, y: 350, w: 150,  h: 18, oneWay: true },
+    { x: 1640, y: 410, w: 150,  h: 18, oneWay: true },
+    { x: 1900, y: 360, w: 140,  h: 18, oneWay: true },
+    { x: 2160, y: 300, w: 150,  h: 18, oneWay: true },
+    { x: 2420, y: 370, w: 160,  h: 18, oneWay: true },
+    { x: 2700, y: 405, w: 150,  h: 18, oneWay: true },
+    { x: 2960, y: 360, w: 150,  h: 18, oneWay: true },
   ],
 
   // Sammelobjekte: hier Kristalle (Kanon-Währung/Skills).

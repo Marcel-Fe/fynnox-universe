@@ -55,6 +55,10 @@ Mechanik & modulare Architektur und ist als Web-App über GitHub Pages spielbar.
 - ✅ Kamera: Totzone, Vorausschau bis 105 px, vertikal träge (Sprung bewegt das Bild nicht),
       kurzer Stoß bei harter Landung; pro Level über `level.data.camera` einstellbar
 - ✅ Wucht: Staub bei Absprung/Landung/Lauf, Luftstoß beim Doppelsprung, Aufprall-Stauchung
+- ✅ Bild: Canvas rendert in echter Bildschirmauflösung (feste Spielhöhe, Breite folgt dem Fenster),
+      keine schwarzen Balken; Hintergrund nahtlos gespiegelt gekachelt und mitlaufend (Faktor 0,35)
+- ✅ Schwebeplattformen sind durchlässig (`oneWay`): von unten durchspringen, nur von oben landen —
+      vorher stieß man sich den Kopf an und blieb an den Seitenkanten hängen
 - ✅ Fynnox-Lauf-/Sprung-Animation: Artwork in Körper/Schwanz/Bein zerlegt und als Puppet animiert
       (Werte datengetrieben in `data/characters.js` → `puppet`)
 - ✅ Katze als echtes Artwork (aus dem Comic-Panel freigestellt); Missions-Objekte haben jetzt einen

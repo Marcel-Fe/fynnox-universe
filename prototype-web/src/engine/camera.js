@@ -14,6 +14,7 @@ const DEFAULTS = {
   followX: 8,        // Nachziehgeschwindigkeit horizontal
   followGround: 6,   // vertikal am Boden
   followAir: 2.6,    // vertikal in der Luft (bewusst träger)
+  bottomPad: 110,    // Luft unter dem Boden: der Held steht nicht am Bildrand
 };
 
 export class Camera {
@@ -34,6 +35,9 @@ export class Camera {
   impulse(px) { this.shake = Math.max(this.shake, px); }
 
   setBounds(worldW, worldH) { this.worldW = worldW; this.worldH = worldH; }
+
+  // Fenstergröße geändert: sichtbarer Ausschnitt anpassen.
+  resize(viewW, viewH) { this.viewW = viewW; this.viewH = viewH; this._clamp(); }
 
   // Optional pro Level anders (level.data.camera). Fehlende Werte bleiben Standard.
   configure(cfg) { Object.assign(this.cfg, cfg || {}); }
@@ -78,7 +82,8 @@ export class Camera {
 
   _clamp() {
     this.x = Math.max(0, Math.min(this.x, this.worldW - this.viewW));
-    this.y = Math.max(0, Math.min(this.y, this.worldH - this.viewH));
+    const maxY = Math.max(0, this.worldH + this.cfg.bottomPad - this.viewH);
+    this.y = Math.max(0, Math.min(this.y, maxY));
   }
 
   parallaxX(factor) { return this.x * factor; }

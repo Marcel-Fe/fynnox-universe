@@ -49,9 +49,9 @@ export class Dialogue {
     if (input.pressed.action) this.advance();
   }
 
-  render(ctx) {
+  // W/H = logische Spielfläche (nicht die Pixelgröße des Canvas).
+  render(ctx, W = 960, H = 540) {
     if (!this.active) return;
-    const W = ctx.canvas.width, H = ctx.canvas.height;
     const f = this.frames[this.index];
 
     // Abdunkeln

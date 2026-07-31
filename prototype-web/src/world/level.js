@@ -63,17 +63,29 @@ export class Level {
   // Zeichnet Himmel + Skyline + Boden + Plattformen. Held/HUD zeichnet main.js darüber.
   renderBackground(ctx, camera) {
     const theme = this.dayNight.theme();
-    const W = ctx.canvas.width, H = ctx.canvas.height;
+    const W = camera.viewW, H = camera.viewH;
 
     const night = theme.moonAlpha; // 1 = Nacht, 0 = Tag
     const groundY = 500 - camera.y;
 
     if (this.bgImage) {
-      // Echtes Raven-City-Bild als Hintergrund, langsam mitscrollend (Parallax) + gekachelt
-      ctx.fillStyle = theme.skyBottom; ctx.fillRect(0, 0, W, groundY + 2);
-      const dh = groundY + 4, dw = dh * (this.bgImage.width / this.bgImage.height);
-      let off = (camera.x * 0.45) % dw; if (off < 0) off += dw;
-      for (let x = -off; x < W; x += dw) ctx.drawImage(this.bgImage, x, 0, dw, dh);
+      // Raven City als weit entfernte Ebene: langsam mitscrollend und spiegelnd
+      // gekachelt (jede zweite Kachel gespiegelt -> keine sichtbaren Nahtkanten).
+      ctx.fillStyle = theme.skyBottom; ctx.fillRect(0, 0, W, H);
+      // Das Bild reicht bis zum unteren Rand: unter der Bodenkante bleibt die
+      // gemalte Stadt sichtbar statt einer leeren Fläche.
+      const dh = Math.max(groundY + 4, H), dw = dh * (this.bgImage.width / this.bgImage.height);
+      const scroll = camera.x * 0.35;
+      const first = Math.floor(scroll / dw);
+      for (let i = first; i * dw - scroll < W; i++) {
+        const x = i * dw - scroll;
+        if ((((i % 2) + 2) % 2) === 1) {
+          ctx.save(); ctx.translate(x + dw, 0); ctx.scale(-1, 1);
+          ctx.drawImage(this.bgImage, 0, 0, dw, dh); ctx.restore();
+        } else {
+          ctx.drawImage(this.bgImage, x, 0, dw, dh);
+        }
+      }
       // Tag-Aufhellung / Nacht-Vertiefung
       if (theme.sunAlpha > 0.02) { ctx.fillStyle = `rgba(255,238,190,${0.4 * theme.sunAlpha})`; ctx.fillRect(0, 0, W, groundY); }
       if (night > 0.02) { ctx.fillStyle = `rgba(10,18,40,${0.15 * night})`; ctx.fillRect(0, 0, W, groundY); }
@@ -96,9 +108,9 @@ export class Level {
       ctx.fillStyle = haze; ctx.fillRect(0, groundY - 170, W, 170);
     }
 
-    // Boden mit Verlauf + Glanzkante
+    // Boden: dunkler Schleier statt deckender Fläche -> die gemalte Stadt bleibt darunter sichtbar
     const gg = ctx.createLinearGradient(0, groundY, 0, H);
-    gg.addColorStop(0, theme.ground); gg.addColorStop(1, 'rgba(4,8,14,1)');
+    gg.addColorStop(0, 'rgba(8,14,26,0.86)'); gg.addColorStop(1, 'rgba(3,6,12,0.97)');
     ctx.fillStyle = gg; ctx.fillRect(0, groundY, W, H - groundY);
     ctx.fillStyle = theme.groundTop; ctx.fillRect(0, groundY, W, 4);
     ctx.fillStyle = `rgba(233,169,59,${0.25 * night})`; ctx.fillRect(0, groundY, W, 1.5);

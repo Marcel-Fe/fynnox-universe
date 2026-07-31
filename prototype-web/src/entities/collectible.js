@@ -22,7 +22,7 @@ export class Collectible {
   render(ctx, camera) {
     if (this.collected) return;
     const sx = this.x - camera.x, sy = this.y - camera.y;
-    if (sx < -40 || sx > ctx.canvas.width + 40) return;
+    if (sx < -40 || sx > camera.viewW + 40) return;
 
     const pulse = 0.8 + Math.sin(this.t * 2) * 0.2;
     ctx.save();

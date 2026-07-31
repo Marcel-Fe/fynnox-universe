@@ -37,9 +37,11 @@ export class Parallax {
     });
   }
 
-  render(ctx, camera, theme, viewH) {
-    const W = ctx.canvas.width;
+  // names: optionale Auswahl einzelner Ebenen (z. B. nur ['near'] vor einem Foto-Hintergrund)
+  render(ctx, camera, theme, viewH, names) {
+    const W = camera.viewW;
     this.layers.forEach((layer, li) => {
+      if (names && !names.includes(layer.cfg.name)) return;
       const offset = camera.parallaxX(layer.cfg.factor);
       const color = theme[layer.cfg.tone];
       const glow = theme.windowGlow;

@@ -14,18 +14,32 @@ import { CHARACTERS } from '../data/characters.js';
 import { BAND0_ALTSTADT_NACHT } from '../data/levels/band0-altstadt-nacht.js';
 import { BAND0_MISSIONS } from '../data/missions/band0.js';
 
-const VIEW_W = 960, VIEW_H = 540;
+// Feste Spielhöhe, flexible Breite: auf breiten Bildschirmen sieht man mehr von
+// der Welt statt schwarzer Balken. Gezeichnet wird immer in diesen logischen
+// Einheiten — `zoom` rechnet sie auf die echten Bildschirmpixel hoch (scharf).
+const VIEW_H = 540, VIEW_W_MIN = 800, VIEW_W_MAX = 1400;
+const view = { w: 960, h: VIEW_H, zoom: 1 };
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// Logische Auflösung fix; CSS skaliert das Canvas auf die Fenstergröße.
-canvas.width = VIEW_W;
-canvas.height = VIEW_H;
-
 const scene = new SceneManager('menu');
 const input = new Input();
-const camera = new Camera(VIEW_W, VIEW_H);
+const camera = new Camera(view.w, view.h);
+
+function resize() {
+  const cssW = canvas.clientWidth || window.innerWidth;
+  const cssH = canvas.clientHeight || window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  view.w = Math.round(Math.max(VIEW_W_MIN, Math.min(VIEW_W_MAX, VIEW_H * (cssW / cssH))));
+  view.zoom = (cssH * dpr) / VIEW_H;
+  canvas.width = Math.round(view.w * view.zoom);
+  canvas.height = Math.round(view.h * view.zoom);
+  camera.resize(view.w, view.h);
+}
+resize();
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
 
 let level, player, hud, hudState, dialogue, missions, collected = 0, started = false;
 
@@ -102,15 +116,18 @@ function update(dt) {
 }
 
 function render() {
-  ctx.clearRect(0, 0, VIEW_W, VIEW_H);
+  // Alles wird in logischen Einheiten gezeichnet; der Zoom bringt es in echter
+  // Bildschirmauflösung auf die Fläche -> scharf statt hochskaliert.
+  ctx.setTransform(view.zoom, 0, 0, view.zoom, 0, 0);
+  ctx.clearRect(0, 0, view.w, view.h);
 
   if (scene.is('play') && started) {
     level.renderBackground(ctx, camera);
     level.renderCollectibles(ctx, camera);
     missions.render(ctx, camera);
     player.render(ctx, camera);
-    hud.render(ctx);
-    dialogue.render(ctx);
+    hud.render(ctx, view.w, view.h);
+    dialogue.render(ctx, view.w, view.h);
   }
 }
 

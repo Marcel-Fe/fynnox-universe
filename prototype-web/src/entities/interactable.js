@@ -52,7 +52,7 @@ export class Interactable {
 
   render(ctx, camera) {
     const sx = this.x - camera.x, sy = this.y - camera.y;
-    if (sx < -60 || sx > ctx.canvas.width + 60) return;
+    if (sx < -60 || sx > camera.viewW + 60) return;
     ctx.save();
     ctx.translate(sx + this.w / 2, sy + this.h / 2);
     if (this.type === 'fire') this._fire(ctx);

@@ -26,10 +26,11 @@ html, body {
   justify-content: center;
 }
 
-/* Canvas skaliert auf die Fenstergröße, behält 16:9 */
+/* Canvas füllt das Fenster. Die Spielhöhe ist fest, die Breite richtet sich nach
+   dem Fenster (main.js) — dadurch keine schwarzen Balken und keine Verzerrung. */
 #game {
-  width: min(100vw, calc(100vh * 16 / 9));
-  height: min(100vh, calc(100vw * 9 / 16));
+  width: 100%;
+  height: 100%;
   image-rendering: auto;
   background: var(--dark);
   display: block;
